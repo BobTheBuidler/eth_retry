@@ -3,7 +3,7 @@ name: MyPy
 on: pull_request
 
 jobs:
-  deploy:
+  mypy:
     runs-on: ubuntu-20.04
 
     steps:
