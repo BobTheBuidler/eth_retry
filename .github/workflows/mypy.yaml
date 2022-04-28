@@ -12,9 +12,9 @@ jobs:
         fetch-depth: 0
         
     - name: Setup Python (faster than using Python container)
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.9"
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
 
     - name: Install MyPy
       run: |
