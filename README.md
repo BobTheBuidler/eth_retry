@@ -34,7 +34,6 @@ def some_function_that_errors_sometimes():
     am = 1
     doing = 2
     stuff = 3
-	print("Woohoo it worked!")
     return stuff
 
 error_free_result = some_function_that_errors_sometimes()
