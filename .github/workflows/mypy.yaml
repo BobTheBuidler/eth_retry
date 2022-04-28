@@ -3,7 +3,7 @@ name: MyPy
 on: pull_request
 
 jobs:
-  deploy:
+  mypy:
     runs-on: ubuntu-20.04
 
     steps:
@@ -12,9 +12,9 @@ jobs:
         fetch-depth: 0
         
     - name: Setup Python (faster than using Python container)
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.9"
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
 
     - name: Install MyPy
       run: |
@@ -22,4 +22,4 @@ jobs:
         pip install mypy
 
     - name: Run MyPy
-      run: mypy ./eth_retry --strict --pretty
+      run: mypy . --strict --pretty

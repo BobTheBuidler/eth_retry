@@ -1,3 +1,4 @@
+# type: ignore
 
 class DummyException(Exception):
     pass
@@ -5,9 +6,9 @@ class DummyException(Exception):
 try:
     from sqlite3 import OperationalError
 except ModuleNotFoundError:
-    OperationalError = DummyException # type: ignore
+    OperationalError = DummyException
 
 try:
     from requests.exceptions import HTTPError, ReadTimeout
 except ModuleNotFoundError:
-    HTTPError, ReadTimeout = DummyException, DummyException # type: ignore
+    HTTPError, ReadTimeout = DummyException, DummyException
