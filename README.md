@@ -41,7 +41,7 @@ def some_function_that_errors_sometimes():
 error_free_result = some_function_that_errors_sometimes()
 
 @eth_retry.auto_retry_async
-async def some_function_that_errors_sometimes():
+async def some_async_function_that_errors_sometimes():
     i = await 0
     am = await 1
     doing = await 2
