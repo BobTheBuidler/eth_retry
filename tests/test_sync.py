@@ -1,3 +1,4 @@
+# type: ignore
 
 from brownie import web3
 from eth_retry.eth_retry import auto_retry
