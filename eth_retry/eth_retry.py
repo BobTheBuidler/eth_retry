@@ -6,6 +6,8 @@ from random import randrange
 from time import sleep
 from typing import Any, Callable
 
+import aiohttp
+
 from eth_retry.conditional_imports import (HTTPError,  # type: ignore
                                            OperationalError, ReadTimeout)
 
@@ -77,25 +79,27 @@ def auto_retry_async(func: Callable[...,Any]) -> Callable[...,Any]:
 def should_retry(e: Exception, failures: int) -> bool:
     if failures > MAX_RETRIES:
         return True
+
+    retry_on_errs = (
+        # Occurs on any chain when making computationally intensive calls. Just retry.
+        # Sometimes works, sometimes doesn't. Worth a shot.
+        'execution aborted (timeout = 5s)',
+
+        # From block explorer while interacting with api. Just retry.
+        'max rate limit reached',
+        'please use api key for higher rate limit',
+
+        # Occurs occasionally on AVAX when node is slow to sync. Just retry.
+        'after last accepted block',
+    )
+    if any(err in str(e).lower() for err in retry_on_errs):
+        return True
+    
     general_exceptions = [ConnectionError, HTTPError, TimeoutError, ReadTimeout]
     if any(isinstance(e, E) for E in general_exceptions) and 'Too Large' not in str(e) and '404' not in str(e):
         return True
     # This happens when brownie's deployments.db gets locked. Just retry.
     elif isinstance(e, OperationalError) and 'database is locked' in str(e):
         return True
-    elif isinstance(e, ValueError):
-        retry_on_errs = (
-            # Occurs on any chain when making computationally intensive calls. Just retry.
-            # Sometimes works, sometimes doesn't. Worth a shot.
-            'execution aborted (timeout = 5s)',
 
-            # From block explorer while interacting with api. Just retry.
-            'Max rate limit reached',
-            'please use API Key for higher rate limit',
-
-            # Occurs occasionally on AVAX when node is slow to sync. Just retry.
-            'after last accepted block',
-        )
-        if any(err in str(e) for err in retry_on_errs):
-            return True
     return False
