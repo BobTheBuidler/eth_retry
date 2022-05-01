@@ -69,7 +69,7 @@ def auto_retry_async(func: Callable[...,Any]) -> Callable[...,Any]:
 
             # Attempt failed, sleep time
             failures += 1
-            asyncio.sleep(failures * sleep_time)
+            await asyncio.sleep(failures * sleep_time)
             
     return auto_retry_wrap_async
 
