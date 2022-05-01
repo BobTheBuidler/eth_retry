@@ -1,3 +1,4 @@
+import asyncio
 import functools
 import logging
 import os
@@ -33,41 +34,14 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
 
     @functools.wraps(func)
     def auto_retry_wrap(*args: Any, **kwargs: Any) -> Any:
-        failures = 0
         sleep_time = randrange(MIN_SLEEP_TIME,MAX_SLEEP_TIME)
+        failures = 0
         while True:
-
             # Attempt to execute `func` and return response
             try:
                 return func(*args, **kwargs)
-
-            # Generic exceptions
-            except (ConnectionError, HTTPError, TimeoutError, ReadTimeout) as e:
-                # This happens when we pass too large of a request to the node. Do not retry.
-                if failures > MAX_RETRIES or 'Too Large' in str(e) or '404' in str(e):
-                    raise
-                logger.warning(f'{str(e)} [{failures}]')
-            
-            # Specific exceptions
-            except OperationalError as e:
-                # This happens when brownie's deployments.db gets locked. Just retry.
-                if failures > MAX_RETRIES or 'database is locked' not in str(e):
-                    raise
-                logger.warning(f'{str(e)} [{failures}]')
-            except ValueError as e:
-                retry_on_errs = (
-                    # Occurs on any chain when making computationally intensive calls. Just retry.
-                    # Sometimes works, sometimes doesn't. Worth a shot.
-                    'execution aborted (timeout = 5s)',
-
-                    # From block explorer while interacting with api. Just retry.
-                    'Max rate limit reached',
-                    'please use API Key for higher rate limit',
-
-                    # Occurs occasionally on AVAX when node is slow to sync. Just retry.
-                    'after last accepted block',
-                )
-                if failures > MAX_RETRIES or not any(err in str(e) for err in retry_on_errs):
+            except Exception as e:
+                if not should_retry(e, failures):
                     raise
                 logger.warning(f'{str(e)} [{failures}]')
             
@@ -76,3 +50,52 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
             sleep(failures * sleep_time)
 
     return auto_retry_wrap
+
+  
+def auto_retry_async(func: Callable[...,Any]) -> Callable[...,Any]:
+    """ Does the same thing as auto_retry, except asynchronously. """
+
+    @functools.wraps(func)
+    async def auto_retry_wrap_async(*args: Any, **kwargs: Any) -> Any:
+        sleep_time = randrange(MIN_SLEEP_TIME,MAX_SLEEP_TIME)
+        failures = 0
+        while True:
+            try:
+                return await func(*args,**kwargs)
+            except Exception as e:
+                if not should_retry(e, failures):
+                    raise
+                logger.warning(f'{str(e)} [{failures}]')
+
+            # Attempt failed, sleep time
+            failures += 1
+            await asyncio.sleep(failures * sleep_time)
+            
+    return auto_retry_wrap_async
+
+            
+def should_retry(e: Exception, failures: int) -> bool:
+    if failures > MAX_RETRIES:
+        return True
+    general_exceptions = [ConnectionError, HTTPError, TimeoutError, ReadTimeout]
+    if any(isinstance(e, E) for E in general_exceptions) and 'Too Large' not in str(e) and '404' not in str(e):
+        return True
+    # This happens when brownie's deployments.db gets locked. Just retry.
+    elif isinstance(e, OperationalError) and 'database is locked' in str(e):
+        return True
+    elif isinstance(e, ValueError):
+        retry_on_errs = (
+            # Occurs on any chain when making computationally intensive calls. Just retry.
+            # Sometimes works, sometimes doesn't. Worth a shot.
+            'execution aborted (timeout = 5s)',
+
+            # From block explorer while interacting with api. Just retry.
+            'Max rate limit reached',
+            'please use API Key for higher rate limit',
+
+            # Occurs occasionally on AVAX when node is slow to sync. Just retry.
+            'after last accepted block',
+        )
+        if any(err in str(e) for err in retry_on_errs):
+            return True
+    return False
