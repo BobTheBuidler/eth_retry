@@ -2,6 +2,7 @@ import asyncio
 import functools
 import logging
 import os
+import requests
 from random import randrange
 from time import sleep
 from typing import Any, Callable
@@ -22,6 +23,7 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
     '''
     Decorator that will retry the function on:
     - ConnectionError
+    - requests.exceptions.ConnectionError
     - HTTPError
     - TimeoutError
     - ReadTimeout
@@ -95,7 +97,7 @@ def should_retry(e: Exception, failures: int) -> bool:
     if any(err in str(e).lower() for err in retry_on_errs):
         return True
     
-    general_exceptions = [ConnectionError, HTTPError, TimeoutError, ReadTimeout]
+    general_exceptions = [ConnectionError, requests.exceptions.ConnectionError, HTTPError, TimeoutError, ReadTimeout]
     if any(isinstance(e, E) for E in general_exceptions) and 'Too Large' not in str(e) and '404' not in str(e):
         return True
     # This happens when brownie's deployments.db gets locked. Just retry.
