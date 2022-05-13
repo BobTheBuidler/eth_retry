@@ -2,12 +2,11 @@ import asyncio
 import functools
 import logging
 import os
-import requests
 from random import randrange
 from time import sleep
 from typing import Any, Callable
 
-import aiohttp
+import requests
 
 from eth_retry.conditional_imports import (HTTPError,  # type: ignore
                                            OperationalError, ReadTimeout)
@@ -49,15 +48,9 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
                     raise
                 logger.warning(f'{str(e)} [{failures}]')
             
-            # Attempt failed, sleep time
+            # Attempt failed, sleep time.
             failures += 1
             sleep(failures * sleep_time)
-
-    return auto_retry_wrap
-
-  
-def auto_retry_async(func: Callable[...,Any]) -> Callable[...,Any]:
-    """ Does the same thing as auto_retry, except asynchronously. """
 
     @functools.wraps(func)
     async def auto_retry_wrap_async(*args: Any, **kwargs: Any) -> Any:
@@ -70,12 +63,14 @@ def auto_retry_async(func: Callable[...,Any]) -> Callable[...,Any]:
                 if not should_retry(e, failures):
                     raise
                 logger.warning(f'{str(e)} [{failures}]')
-
-            # Attempt failed, sleep time
+            
+            # Attempt failed, sleep time.
             failures += 1
             await asyncio.sleep(failures * sleep_time)
-            
-    return auto_retry_wrap_async
+
+    if asyncio.iscoroutinefunction(func):
+        return auto_retry_wrap_async
+    return auto_retry_wrap
 
             
 def should_retry(e: Exception, failures: int) -> bool:
