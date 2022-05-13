@@ -1,1 +1,1 @@
-from eth_retry.eth_retry import auto_retry, auto_retry_async
+from eth_retry.eth_retry import auto_retry
