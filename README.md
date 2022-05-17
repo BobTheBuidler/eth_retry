@@ -2,7 +2,7 @@
 # eth_retry
 > Stop transient errors from wasting your time!
 
-`eth_retry` is a Python library that provides one decorator, `eth_retry.auto_retry`. (and its asynchronous counterpart, `eth_retry.auto_retry_async`)
+`eth_retry` is a Python library that provides one decorator, `eth_retry.auto_retry`.
 
 `auto_retry` will automatically catch known transient exceptions that are common in the Ethereum/EVM ecosystem and will reattempt to evaluate your decorated function up to `os.environ['MAX_RETRIES']` (default: 10) times.
 
