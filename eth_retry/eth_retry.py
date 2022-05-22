@@ -75,7 +75,7 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
             
 def should_retry(e: Exception, failures: int) -> bool:
     if failures > MAX_RETRIES:
-        return True
+        return False
 
     retry_on_errs = (
         # Occurs on any chain when making computationally intensive calls. Just retry.
