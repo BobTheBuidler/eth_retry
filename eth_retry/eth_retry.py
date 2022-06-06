@@ -25,6 +25,7 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
     - requests.exceptions.ConnectionError
     - HTTPError
     - TimeoutError
+    - asyncio.exceptions.TimeoutError
     - ReadTimeout
     
     It will also retry on specific ValueError exceptions:
@@ -95,7 +96,14 @@ def should_retry(e: Exception, failures: int) -> bool:
     if any(err in str(e).lower() for err in retry_on_errs):
         return True
     
-    general_exceptions = [ConnectionError, requests.exceptions.ConnectionError, HTTPError, TimeoutError, ReadTimeout]
+    general_exceptions = [
+        ConnectionError,
+        requests.exceptions.ConnectionError,
+        HTTPError,
+        TimeoutError,
+        asyncio.exceptions.TimeoutError,
+        ReadTimeout
+    ]
     if any(isinstance(e, E) for E in general_exceptions) and 'Too Large' not in str(e) and '404' not in str(e):
         return True
     # This happens when brownie's deployments.db gets locked. Just retry.
