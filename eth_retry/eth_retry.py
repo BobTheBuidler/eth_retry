@@ -24,7 +24,6 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
     - ConnectionError
     - requests.exceptions.ConnectionError
     - HTTPError
-    - TimeoutError
     - asyncio.exceptions.TimeoutError
     - ReadTimeout
     
@@ -60,6 +59,9 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
         while True:
             try:
                 return await func(*args,**kwargs)
+            except asyncio.exceptions.TimeoutError:
+                logger.warning(f'asyncio timeout [{failures}]')
+                continue
             except Exception as e:
                 if not should_retry(e, failures):
                     raise
@@ -100,8 +102,6 @@ def should_retry(e: Exception, failures: int) -> bool:
         ConnectionError,
         requests.exceptions.ConnectionError,
         HTTPError,
-        TimeoutError,
-        asyncio.exceptions.TimeoutError,
         ReadTimeout
     ]
     if any(isinstance(e, E) for E in general_exceptions) and 'Too Large' not in str(e) and '404' not in str(e):
