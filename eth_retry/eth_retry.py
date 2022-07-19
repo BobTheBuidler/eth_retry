@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import inspect
 import logging
 import os
 from random import randrange
@@ -60,7 +61,7 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
             try:
                 return await func(*args,**kwargs)
             except asyncio.exceptions.TimeoutError:
-                logger.warning(f'asyncio timeout [{failures}]')
+                logger.warning(f'asyncio timeout [{failures}] {_get_caller_details_from_stack()}')
                 continue
             except Exception as e:
                 if not should_retry(e, failures):
@@ -111,3 +112,10 @@ def should_retry(e: Exception, failures: int) -> bool:
         return True
 
     return False
+
+
+def _get_caller_details_from_stack():
+    code_context = inspect.stack()[1].code_context
+    if code_context is None:
+        return f"{inspect.stack()[1].filename} line {inspect.stack()[1].lineno}"
+    return f"{inspect.stack()[1].filename} line {inspect.stack()[1].lineno} {[code_context.strip()]}"
