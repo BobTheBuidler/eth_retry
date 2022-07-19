@@ -1,6 +1,8 @@
 build
 dist
 .eggs
+.hypothesis
+.pytest_cache
 eth_retry.egg-info
 __pycache__
 env
