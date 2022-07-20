@@ -115,7 +115,7 @@ def should_retry(e: Exception, failures: int) -> bool:
 
 
 def _get_caller_details_from_stack():
-    code_context = inspect.stack()[1].code_context
+    code_context = inspect.stack()[2].code_context
     if code_context is None:
-        return f"{inspect.stack()[1].filename} line {inspect.stack()[1].lineno}"
-    return f"{inspect.stack()[1].filename} line {inspect.stack()[1].lineno} {[code_context[0].strip()]}"
+        return f"{inspect.stack()[2].filename} line {inspect.stack()[2].lineno}"
+    return f"{inspect.stack()[2].filename} line {inspect.stack()[2].lineno} {[code_context[0].strip()]}"
