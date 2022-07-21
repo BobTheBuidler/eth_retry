@@ -10,7 +10,8 @@ from typing import Any, Callable
 import requests
 
 from eth_retry.conditional_imports import (HTTPError,  # type: ignore
-                                           OperationalError, ReadTimeout)
+                                           MaxRetryError, OperationalError,
+                                           ReadTimeout)
 
 logger = logging.getLogger('eth_retry')
 
@@ -103,7 +104,8 @@ def should_retry(e: Exception, failures: int) -> bool:
         ConnectionError,
         requests.exceptions.ConnectionError,
         HTTPError,
-        ReadTimeout
+        ReadTimeout,
+        MaxRetryError,
     ]
     if any(isinstance(e, E) for E in general_exceptions) and 'Too Large' not in str(e) and '404' not in str(e):
         return True
