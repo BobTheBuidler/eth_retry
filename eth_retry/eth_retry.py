@@ -86,6 +86,7 @@ def should_retry(e: Exception, failures: int) -> bool:
         # Occurs on any chain when making computationally intensive calls. Just retry.
         # Sometimes works, sometimes doesn't. Worth a shot.
         'execution aborted (timeout = 5s)',
+        'max retries exceeded with url',
         'temporary failure in name resolution',
 
         # From block explorer while interacting with api. Just retry.
