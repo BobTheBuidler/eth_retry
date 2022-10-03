@@ -33,6 +33,7 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
     - Max rate limit reached
     - please use API Key for higher rate limit
     - execution aborted (timeout = 5s)
+    - parse error
     
     On repeat errors, will retry in increasing intervals.
     '''
@@ -88,6 +89,7 @@ def should_retry(e: Exception, failures: int) -> bool:
         'execution aborted (timeout = 5s)',
         'max retries exceeded with url',
         'temporary failure in name resolution',
+        'parse error',
 
         # From block explorer while interacting with api. Just retry.
         'max rate limit reached',
