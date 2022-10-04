@@ -100,6 +100,9 @@ def should_retry(e: Exception, failures: int) -> bool:
 
         # The standard Moralis rate limiting message. Just retry.
         'too many requests'
+      
+        # You get this ssl error in docker sometimes
+        'cannot assign requested address',
     )
     if any(err in str(e).lower() for err in retry_on_errs):
         return True
