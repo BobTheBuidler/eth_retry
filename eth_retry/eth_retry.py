@@ -3,6 +3,7 @@ import functools
 import inspect
 import logging
 import os
+from json import JSONDecodeError
 from random import randrange
 from time import sleep
 from typing import Any, Callable
@@ -28,6 +29,7 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
     - HTTPError
     - asyncio.exceptions.TimeoutError
     - ReadTimeout
+    - JSONDecodeError
     
     It will also retry on specific ValueError exceptions:
     - Max rate limit reached
@@ -113,6 +115,7 @@ def should_retry(e: Exception, failures: int) -> bool:
         HTTPError,
         ReadTimeout,
         MaxRetryError,
+        JSONDecodeError,
     ]
     if any(isinstance(e, E) for E in general_exceptions) and 'Too Large' not in str(e) and '404' not in str(e):
         return True
