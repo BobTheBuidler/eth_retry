@@ -22,4 +22,4 @@ jobs:
         pip install mypy types-requests
 
     - name: Run MyPy
-      run: mypy . --strict --pretty
+      run: mypy . --strict --pretty --show-error-codes --show-error-context
