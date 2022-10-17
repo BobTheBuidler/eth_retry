@@ -3,25 +3,46 @@ import functools
 import inspect
 import logging
 import os
+import sys
 from json import JSONDecodeError
 from random import randrange
 from time import sleep
-from typing import Any, Callable
+from typing import Any, Awaitable, Callable, TypeVar, Union, overload
 
 import requests
 
-from eth_retry.conditional_imports import (HTTPError,  # type: ignore
-                                           MaxRetryError, OperationalError,
-                                           ReadTimeout)
+from eth_retry.conditional_imports import HTTPError  # type: ignore
+from eth_retry.conditional_imports import MaxRetryError  # type: ignore
+from eth_retry.conditional_imports import OperationalError  # type: ignore
+from eth_retry.conditional_imports import ReadTimeout  # type: ignore
 
 logger = logging.getLogger('eth_retry')
 
+# Environment
 MIN_SLEEP_TIME = int(os.environ.get("MIN_SLEEP_TIME", 10))
 MAX_SLEEP_TIME = int(os.environ.get("MAX_SLEEP_TIME", 20))
 MAX_RETRIES = int(os.environ.get("MAX_RETRIES", 10))
 
+# Types
+T = TypeVar("T")
+if sys.version_info >= (3, 10):
+    from typing import ParamSpec
+    P = ParamSpec("P")
+    Function = Callable[P ,T]
+    CoroutineFunction = Function[Awaitable[T]]
+    Decoratee = Union[Function[P, T], CoroutineFunction[P, T]]
+else:
+    Function = Callable[..., T]
+    CoroutineFunction = Function[Awaitable[T]]
+    Decoratee = Union[Function[T], CoroutineFunction[T]]
 
-def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
+@overload
+def auto_retry(func: CoroutineFunction[T]) -> CoroutineFunction[T]:...
+    
+@overload
+def auto_retry(func: Function[T]) -> Function[T]:...
+
+def auto_retry(func: Decoratee[T]):  # type: ignore
     '''
     Decorator that will retry the function on:
     - ConnectionError
@@ -29,7 +50,6 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
     - HTTPError
     - asyncio.exceptions.TimeoutError
     - ReadTimeout
-    - JSONDecodeError
     
     It will also retry on specific ValueError exceptions:
     - Max rate limit reached
@@ -41,13 +61,13 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
     '''
 
     @functools.wraps(func)
-    def auto_retry_wrap(*args: Any, **kwargs: Any) -> Any:
+    def auto_retry_wrap(*args: Any, **kwargs: Any) -> T:
         sleep_time = randrange(MIN_SLEEP_TIME,MAX_SLEEP_TIME)
         failures = 0
         while True:
             # Attempt to execute `func` and return response
             try:
-                return func(*args, **kwargs)
+                return func(*args, **kwargs)  # type: ignore
             except Exception as e:
                 if not should_retry(e, failures):
                     raise
@@ -58,12 +78,12 @@ def auto_retry(func: Callable[...,Any]) -> Callable[...,Any]:
             sleep(failures * sleep_time)
 
     @functools.wraps(func)
-    async def auto_retry_wrap_async(*args: Any, **kwargs: Any) -> Any:
+    async def auto_retry_wrap_async(*args: Any, **kwargs: Any) -> T:
         sleep_time = randrange(MIN_SLEEP_TIME,MAX_SLEEP_TIME)
         failures = 0
         while True:
             try:
-                return await func(*args,**kwargs)
+                return await func(*args,**kwargs)  # type: ignore
             except asyncio.exceptions.TimeoutError:
                 logger.warning(f'asyncio timeout [{failures}] {_get_caller_details_from_stack()}')
                 continue
@@ -126,7 +146,7 @@ def should_retry(e: Exception, failures: int) -> bool:
     return False
 
 
-def _get_caller_details_from_stack():
+def _get_caller_details_from_stack() -> str:
     code_context = inspect.stack()[2].code_context
     if code_context is None:
         return f"{inspect.stack()[2].filename} line {inspect.stack()[2].lineno}"
