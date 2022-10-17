@@ -1,7 +1,7 @@
 # type: ignore
 
 import asyncio
-from eth_retry.eth_retry import auto_retry_async
+from eth_retry.eth_retry import auto_retry
 
 from brownie import web3
 from web3 import AsyncHTTPProvider, Web3
@@ -9,8 +9,9 @@ from web3.eth import AsyncEth
 
 async_w3 = Web3(AsyncHTTPProvider(web3.provider.endpoint_uri))
 async_w3.eth = AsyncEth(async_w3)
+async_w3.middleware_onion.clear()
 
-@auto_retry_async
+@auto_retry
 async def do_work(w3):
     work = [w3.eth.chain_id for i in range(5000)]
     return await asyncio.gather(*work)
