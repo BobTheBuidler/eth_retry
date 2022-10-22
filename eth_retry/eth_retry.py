@@ -11,6 +11,7 @@ from typing import Any, Awaitable, Callable, TypeVar, Union, overload
 
 import requests
 
+from eth_retry.conditional_imports import ClientError  # type: ignore
 from eth_retry.conditional_imports import HTTPError  # type: ignore
 from eth_retry.conditional_imports import MaxRetryError  # type: ignore
 from eth_retry.conditional_imports import OperationalError  # type: ignore
@@ -136,6 +137,7 @@ def should_retry(e: Exception, failures: int) -> bool:
         ReadTimeout,
         MaxRetryError,
         JSONDecodeError,
+        ClientError,
     ]
     if any(isinstance(e, E) for E in general_exceptions) and 'Too Large' not in str(e) and '404' not in str(e):
         return True

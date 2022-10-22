@@ -17,6 +17,12 @@ except ModuleNotFoundError:
 
 # aiohttp
 try:
+    from aiohttp import ClientError
+except ModuleNotFoundError:
+    ClientError = DummyException
+
+# urllib
+try:
     from urllib3.exceptions import MaxRetryError
 except ModuleNotFoundError:
     MaxRetryError = DummyException
