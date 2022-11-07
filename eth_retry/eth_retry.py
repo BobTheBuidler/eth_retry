@@ -29,8 +29,8 @@ T = TypeVar("T")
 if sys.version_info >= (3, 10):
     from typing import ParamSpec
     P = ParamSpec("P")
-    Function = Callable[P ,T]
-    CoroutineFunction = Function[Awaitable[T]]
+    Function = Callable[P ,T]    
+    CoroutineFunction = Function[P, Awaitable[T]]
     Decoratee = Union[Function[P, T], CoroutineFunction[P, T]]
 else:
     Function = Callable[..., T]
@@ -38,12 +38,12 @@ else:
     Decoratee = Union[Function[T], CoroutineFunction[T]]
 
 @overload
-def auto_retry(func: CoroutineFunction[T]) -> CoroutineFunction[T]:...
+def auto_retry(func: CoroutineFunction[P, T]) -> CoroutineFunction[P, T]:...
     
 @overload
-def auto_retry(func: Function[T]) -> Function[T]:...
+def auto_retry(func: Function[P, T]) -> Function[P, T]:...
 
-def auto_retry(func: Decoratee[T]):  # type: ignore
+def auto_retry(func: Decoratee[P, T]):  # type: ignore
     '''
     Decorator that will retry the function on:
     - ConnectionError
