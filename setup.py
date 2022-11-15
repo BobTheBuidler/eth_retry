@@ -19,4 +19,7 @@ setup(
     setup_requires=[
         'setuptools_scm',
     ],
+    package_data={
+        "eth_retry": ["py.typed"],
+    }
 )
