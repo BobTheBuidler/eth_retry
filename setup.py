@@ -16,6 +16,9 @@ setup(
     author_email='bobthebuidlerdefi@gmail.com',
     url='https://github.com/BobTheBuidler/eth_retry',
     license='MIT',
+    install_requires=[
+        'typing_extensions>=4.0.1',
+    ],
     setup_requires=[
         'setuptools_scm',
     ],
