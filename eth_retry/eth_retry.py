@@ -25,25 +25,21 @@ MAX_SLEEP_TIME = int(os.environ.get("MAX_SLEEP_TIME", 20))
 MAX_RETRIES = int(os.environ.get("MAX_RETRIES", 10))
 
 # Types
-T = TypeVar("T")
 if sys.version_info >= (3, 10):
     from typing import ParamSpec
-    P = ParamSpec("P")
-    Function = Callable[P ,T]
-    CoroutineFunction = Function[Awaitable[T]]
-    Decoratee = Union[Function[P, T], CoroutineFunction[P, T]]
 else:
-    Function = Callable[..., T]
-    CoroutineFunction = Function[Awaitable[T]]
-    Decoratee = Union[Function[T], CoroutineFunction[T]]
+    from typing_extensions import ParamSpec
+
+T = TypeVar("T")
+P = ParamSpec("P")
+Function = Callable[P ,T]
+CoroutineFunction = Function[P, Awaitable[T]]
+Decoratee = Union[Function[P, T], CoroutineFunction[P, T]]
 
 @overload
-def auto_retry(func: CoroutineFunction[T]) -> CoroutineFunction[T]:...
+def auto_retry(func: CoroutineFunction[P, T]) -> CoroutineFunction[P, T]:...
     
-@overload
-def auto_retry(func: Function[T]) -> Function[T]:...
-
-def auto_retry(func: Decoratee[T]):  # type: ignore
+def auto_retry(func: Function[P, T]) -> Function[P, T]:
     '''
     Decorator that will retry the function on:
     - ConnectionError
