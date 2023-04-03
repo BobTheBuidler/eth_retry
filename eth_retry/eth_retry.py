@@ -7,7 +7,7 @@ import sys
 from json import JSONDecodeError
 from random import randrange
 from time import sleep
-from typing import Any, Awaitable, Callable, TypeVar, Union, overload
+from typing import Awaitable, Callable, TypeVar, Union, overload
 
 import requests
 
@@ -58,7 +58,7 @@ def auto_retry(func: Function[P, T]) -> Function[P, T]:
     '''
 
     @functools.wraps(func)
-    def auto_retry_wrap(*args: Any, **kwargs: Any) -> T:
+    def auto_retry_wrap(*args: P.args, **kwargs: P.kwargs) -> T:
         sleep_time = randrange(MIN_SLEEP_TIME,MAX_SLEEP_TIME)
         failures = 0
         while True:
@@ -75,7 +75,7 @@ def auto_retry(func: Function[P, T]) -> Function[P, T]:
             sleep(failures * sleep_time)
 
     @functools.wraps(func)
-    async def auto_retry_wrap_async(*args: Any, **kwargs: Any) -> T:
+    async def auto_retry_wrap_async(*args: P.args, **kwargs: P.kwargs) -> T:
         sleep_time = randrange(MIN_SLEEP_TIME,MAX_SLEEP_TIME)
         failures = 0
         while True:
