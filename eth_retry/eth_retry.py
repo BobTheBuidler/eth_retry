@@ -113,6 +113,8 @@ def should_retry(e: Exception, failures: int) -> bool:
         # From block explorer while interacting with api. Just retry.
         'max rate limit reached',
         'please use api key for higher rate limit',
+        # This one comes from optiscan specifically when you have no key
+        'Too many invalid api key attempts, please try again later'
 
         # Occurs occasionally on AVAX when node is slow to sync. Just retry.
         'after last accepted block',
