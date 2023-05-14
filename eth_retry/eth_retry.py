@@ -20,6 +20,8 @@ from eth_retry.conditional_imports import ReadTimeout  # type: ignore
 logger = logging.getLogger('eth_retry')
 
 # Environment
+ETH_RETRY_DISABLED = bool(os.environ.get("ETH_RETRY_DISABLED"))
+ETH_RETRY_DEBUG = bool(os.environ.get("ETH_RETRY_DEBUG"))
 MIN_SLEEP_TIME = int(os.environ.get("MIN_SLEEP_TIME", 10))
 MAX_SLEEP_TIME = int(os.environ.get("MAX_SLEEP_TIME", 20))
 MAX_RETRIES = int(os.environ.get("MAX_RETRIES", 10))
@@ -59,7 +61,7 @@ def auto_retry(func: Function[P, T]) -> Function[P, T]:
 
     @functools.wraps(func)
     def auto_retry_wrap(*args: P.args, **kwargs: P.kwargs) -> T:
-        sleep_time = randrange(MIN_SLEEP_TIME,MAX_SLEEP_TIME)
+        sleep_time = randrange(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
         failures = 0
         while True:
             # Attempt to execute `func` and return response
@@ -69,28 +71,38 @@ def auto_retry(func: Function[P, T]) -> Function[P, T]:
                 if not should_retry(e, failures):
                     raise
                 logger.warning(f'{str(e)} [{failures}]')
+                if ETH_RETRY_DEBUG:
+                    logger.exception(e)
             
             # Attempt failed, sleep time.
             failures += 1
+            if ETH_RETRY_DEBUG:
+                logger.info(f'sleeping {round(failures * sleep_time, 2)} seconds.')
             sleep(failures * sleep_time)
 
     @functools.wraps(func)
     async def auto_retry_wrap_async(*args: P.args, **kwargs: P.kwargs) -> T:
-        sleep_time = randrange(MIN_SLEEP_TIME,MAX_SLEEP_TIME)
+        sleep_time = randrange(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
         failures = 0
         while True:
             try:
                 return await func(*args,**kwargs)  # type: ignore
-            except asyncio.exceptions.TimeoutError:
+            except asyncio.exceptions.TimeoutError as e:
                 logger.warning(f'asyncio timeout [{failures}] {_get_caller_details_from_stack()}')
+                if ETH_RETRY_DEBUG:
+                    logger.exception(e)
                 continue
             except Exception as e:
                 if not should_retry(e, failures):
                     raise
                 logger.warning(f'{str(e)} [{failures}]')
+                if ETH_RETRY_DEBUG:
+                    logger.exception(e)
             
             # Attempt failed, sleep time.
             failures += 1
+            if ETH_RETRY_DEBUG:
+                logger.info(f'sleeping {round(failures * sleep_time, 2)} seconds.')
             await asyncio.sleep(failures * sleep_time)
 
     if asyncio.iscoroutinefunction(func):
@@ -99,7 +111,7 @@ def auto_retry(func: Function[P, T]) -> Function[P, T]:
 
             
 def should_retry(e: Exception, failures: int) -> bool:
-    if failures > MAX_RETRIES:
+    if ETH_RETRY_DISABLED or failures > MAX_RETRIES:
         return False
 
     retry_on_errs = (
