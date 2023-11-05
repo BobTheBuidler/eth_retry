@@ -136,6 +136,9 @@ def should_retry(e: Exception, failures: int) -> bool:
       
         # You get this ssl error in docker sometimes
         'cannot assign requested address',
+
+        # alchemy.io rate limiting
+        'your app has exceeded its compute units per second capacity. if you have retries enabled, you can safely ignore this message. if not, check out https://docs.alchemy.com/reference/throughput'
     )
     if any(err in str(e).lower() for err in retry_on_errs):
         return True
