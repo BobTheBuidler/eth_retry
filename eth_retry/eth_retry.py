@@ -162,7 +162,7 @@ def should_retry(e: Exception, failures: int) -> bool:
 
 
 def _get_caller_details_from_stack() -> str:
-    code_context = inspect.stack()[2].code_context
-    if code_context is None:
-        return f"{inspect.stack()[2].filename} line {inspect.stack()[2].lineno}"
-    return f"{inspect.stack()[2].filename} line {inspect.stack()[2].lineno} {[code_context[0].strip()]}"
+    caller = f"{inspect.stack()[2].filename} line {inspect.stack()[2].lineno}"
+    if "asyncio/events.py" in caller:
+        caller = f"{inspect.stack()[3].filename} line {inspect.stack()[3].lineno}"
+    return caller if (code_context:= inspect.stack()[i].code_context) is None else f"{caller} {[code_context[0].strip()]}"
