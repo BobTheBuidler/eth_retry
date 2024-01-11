@@ -64,7 +64,8 @@ def auto_retry(func: Function[P, T]) -> Function[P, T]:
             except Exception as e:
                 if not should_retry(e, failures):
                     raise
-                logger.warning(f'{str(e)} [{failures}]')
+                if failures > ENVS.ETH_RETRY_SUPPRESS_LOGS:
+                    logger.warning(f'{str(e)} [{failures}]')
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.exception(e)
             
@@ -89,7 +90,8 @@ def auto_retry(func: Function[P, T]) -> Function[P, T]:
             except Exception as e:
                 if not should_retry(e, failures):
                     raise
-                logger.warning(f'{str(e)} [{failures}]')
+                if failures > ENVS.ETH_RETRY_SUPPRESS_LOGS:
+                    logger.warning(f'{str(e)} [{failures}]')
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.exception(e)
             
