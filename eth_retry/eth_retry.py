@@ -160,10 +160,13 @@ def should_retry(e: Exception, failures: int) -> bool:
 
     return False
 
-
+_aio_files = [
+    "asyncio/events.py"
+    "asyncio/base_events.py"
+]
 def _get_caller_details_from_stack() -> str:
     for frame in inspect.stack()[2:]:
-        if "asyncio/events.py" not in frame.filename:
+        if all(filename not in frame.filename for filename in _aio_files):
             details = f"{frame.filename} line {frame.lineno}"
             context = frame.code_context
             return details if context is None else f"{details} {[context[0].strip()]}"
