@@ -1,10 +1,10 @@
 # type: ignore
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 setup(
     name='eth_retry',
-    packages=find_packages(),
+    packages=["eth_retry"],
     use_scm_version={
         "root": ".",
         "relative_to": __file__,
