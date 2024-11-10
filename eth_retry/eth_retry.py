@@ -48,7 +48,6 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
     On repeat errors, will retry in increasing intervals.
     """
 
-    
     if asyncio.iscoroutinefunction(func):
 
         @functools.wraps(func)
@@ -72,17 +71,17 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                         logger.warning(f"{str(e)} [{failures}]")
                     if ENVS.ETH_RETRY_DEBUG:
                         logger.exception(e)
-    
+
                 # Attempt failed, sleep time.
                 failures += 1
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
                 await asyncio.sleep(failures * sleep_time)
 
-        return auto_retry_wrap_async # type: ignore [return-value]
+        return auto_retry_wrap_async  # type: ignore [return-value]
 
     else:
-        
+
         @functools.wraps(func)
         def auto_retry_wrap(*args: P.args, **kwargs: P.kwargs) -> T:
             sleep_time = randrange(ENVS.MIN_SLEEP_TIME, ENVS.MAX_SLEEP_TIME)
@@ -98,13 +97,13 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                         logger.warning(f"{str(e)} [{failures}]")
                     if ENVS.ETH_RETRY_DEBUG:
                         logger.exception(e)
-    
+
                 # Attempt failed, sleep time.
                 failures += 1
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
                 sleep(failures * sleep_time)
-    
+
         return auto_retry_wrap
 
 
