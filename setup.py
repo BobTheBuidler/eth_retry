@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(
-    name='eth_retry',
+    name="eth_retry",
     packages=["eth_retry"],
     use_scm_version={
         "root": ".",
@@ -11,18 +11,18 @@ setup(
         "local_scheme": "no-local-version",
         "version_scheme": "python-simplified-semver",
     },
-    description='Provides a decorator that automatically catches known transient exceptions that are common in the Ethereum/EVM ecosystem and reattempts to evaluate your decorated function',
-    author='BobTheBuidler',
-    author_email='bobthebuidlerdefi@gmail.com',
-    url='https://github.com/BobTheBuidler/eth_retry',
-    license='MIT',
+    description="Provides a decorator that automatically catches known transient exceptions that are common in the Ethereum/EVM ecosystem and reattempts to evaluate your decorated function",
+    author="BobTheBuidler",
+    author_email="bobthebuidlerdefi@gmail.com",
+    url="https://github.com/BobTheBuidler/eth_retry",
+    license="MIT",
     install_requires=[
-        'typing_extensions>=4.0.1',
+        "typing_extensions>=4.0.1",
     ],
     setup_requires=[
-        'setuptools_scm',
+        "setuptools_scm",
     ],
     package_data={
         "eth_retry": ["py.typed"],
-    }
+    },
 )

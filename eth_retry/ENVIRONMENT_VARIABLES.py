@@ -1,4 +1,3 @@
-
 import os
 
 ETH_RETRY_DISABLED = bool(os.environ.get("ETH_RETRY_DISABLED"))
