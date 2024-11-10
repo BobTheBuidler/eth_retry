@@ -7,7 +7,7 @@ import sys
 from json import JSONDecodeError
 from random import randrange
 from time import sleep
-from typing import Awaitable, Callable, TypeVar, Union, overload
+from typing import Awaitable, Callable, Optional, TypeVar, Union, overload
 
 import requests
 
@@ -163,9 +163,10 @@ def should_retry(e: Exception, failures: int) -> bool:
 _aio_files = ["asyncio/events.py" "asyncio/base_events.py"]
 
 
-def _get_caller_details_from_stack() -> str:
+def _get_caller_details_from_stack() -> Optional[str]:
     for frame in inspect.stack()[2:]:
         if all(filename not in frame.filename for filename in _aio_files):
             details = f"{frame.filename} line {frame.lineno}"
             context = frame.code_context
             return details if context is None else f"{details} {[context[0].strip()]}"
+    return None
