@@ -1,7 +1,9 @@
 # type: ignore
 
+
 class DummyException(Exception):
     pass
+
 
 # eth-brownie
 try:
