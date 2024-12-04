@@ -25,4 +25,5 @@ setup(
     package_data={
         "eth_retry": ["py.typed"],
     },
+    include_package_data=True,
 )
