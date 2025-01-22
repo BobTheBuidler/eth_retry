@@ -122,6 +122,7 @@ def should_retry(e: Exception, failures: int) -> bool:
         "parse error",
         # From block explorer while interacting with api. Just retry.
         "max rate limit reached",
+        "max calls per sec rate limit reached",  # basescan, maybe others
         "please use api key for higher rate limit",
         # This one comes from optiscan specifically when you have no key
         "too many invalid api key attempts, please try again later",
