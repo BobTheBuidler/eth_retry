@@ -7,7 +7,7 @@ import sys
 from json import JSONDecodeError
 from random import randrange
 from time import sleep
-from typing import Callable, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Coroutine, Optional, TypeVar, Union, overload
 
 import requests
 
