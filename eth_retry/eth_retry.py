@@ -10,7 +10,7 @@ from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
-from typing import Callable, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Coroutine, Optional, TypeVar, Union, overload
 
 import requests
 
@@ -32,7 +32,13 @@ else:
 T = TypeVar("T")
 P = ParamSpec("P")
 
+CoroutineFunction = Callable[P, Coroutine[Any, Any, T]]
 
+
+@overload
+def auto_retry(func: CoroutineFunction[P, T]) -> CoroutineFunction[P, T]: ...
+@overload
+def auto_retry(func: Callable[P, T]) -> Callable[P, T]: ...
 def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
     """
     Decorator that will retry the function on:
