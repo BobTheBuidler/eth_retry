@@ -51,11 +51,14 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
     On repeat errors, will retry in increasing intervals.
     """
+
+    min_sleep_time = int(ENVS.MIN_SLEEP_TIME)
+    max_sleep_time = int(ENVS.MAX_SLEEP_TIME)
+
     if iscoroutinefunction(func):
 
         @wraps(func)
         async def auto_retry_wrap_async(*args: P.args, **kwargs: P.kwargs) -> T:
-            sleep_time = randrange(ENVS.MIN_SLEEP_TIME, ENVS.MAX_SLEEP_TIME)
             failures = 0
             while True:
                 try:
@@ -77,6 +80,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
                 # Attempt failed, sleep time.
                 failures += 1
+                sleep_time = randrange(min_sleep_time, max_sleep_time)
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
                 await aiosleep(failures * sleep_time)
@@ -87,7 +91,6 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
         @wraps(func)
         def auto_retry_wrap(*args: P.args, **kwargs: P.kwargs) -> T:
-            sleep_time = randrange(ENVS.MIN_SLEEP_TIME, ENVS.MAX_SLEEP_TIME)
             failures = 0
             while True:
                 # Attempt to execute `func` and return response
@@ -103,6 +106,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
                 # Attempt failed, sleep time.
                 failures += 1
+                sleep_time = randrange(min_sleep_time, max_sleep_time)
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
                 timesleep(failures * sleep_time)
@@ -137,10 +141,10 @@ def should_retry(e: Exception, failures: int) -> bool:
         # alchemy.io rate limiting
         "your app has exceeded its compute units per second capacity. if you have retries enabled, you can safely ignore this message. if not, check out https://docs.alchemy.com/reference/throughput",
     )
-    if any(err in str(e).lower() for err in retry_on_errs):
+    if any(filter(str(e).lower().__contains__, retry_on_errs)):  # type: ignore [arg-type]
         return True
 
-    general_exceptions = [
+    general_exceptions = (
         ConnectionError,
         requests.exceptions.ConnectionError,
         HTTPError,
@@ -148,21 +152,23 @@ def should_retry(e: Exception, failures: int) -> bool:
         MaxRetryError,
         JSONDecodeError,
         ClientError,
-    ]
+    )
+
+    stre = str(e)
     if (
         any(isinstance(e, E) for E in general_exceptions)
-        and "Too Large" not in str(e)
-        and "404" not in str(e)
+        and "Too Large" not in stre
+        and "404" not in stre
     ):
         return True
     # This happens when brownie's deployments.db gets locked. Just retry.
-    elif isinstance(e, OperationalError) and "database is locked" in str(e):
+    elif isinstance(e, OperationalError) and "database is locked" in stre:
         return True
 
     return False
 
 
-_aio_files = ["asyncio/events.py" "asyncio/base_events.py"]
+_aio_files = "asyncio/events.py", "asyncio/base_events.py"
 
 
 def _get_caller_details_from_stack() -> Optional[str]:
