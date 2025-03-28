@@ -29,7 +29,12 @@ else:
 T = TypeVar("T")
 P = ParamSpec("P")
 
+CoroutineFunction = Callable[P, Coroutine[Any, Any, T]]
 
+@overload
+def auto_retry(func: CoroutineFunction[P, T]) -> CoroutineFunction[P, T]:...
+@overload
+def auto_retry(func: Callable[P, T]) -> Callable[P, T]:...
 def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
     """
     Decorator that will retry the function on:
