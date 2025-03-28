@@ -1,12 +1,15 @@
-import asyncio
-import functools
-import inspect
-import logging
-import os
 import sys
+from asyncio import (
+    TimeoutError as AsyncioTimeoutError,
+    iscoroutinefunction,
+    sleep as aiosleep,
+)
+from functools import wraps
+from inspect import stack
 from json import JSONDecodeError
+from logging import getLogger
 from random import randrange
-from time import sleep
+from time import sleep as timesleep
 from typing import Callable, Optional, TypeVar, Union, overload
 
 import requests
@@ -18,7 +21,7 @@ from eth_retry.conditional_imports import MaxRetryError  # type: ignore
 from eth_retry.conditional_imports import OperationalError  # type: ignore
 from eth_retry.conditional_imports import ReadTimeout  # type: ignore
 
-logger = logging.getLogger("eth_retry")
+logger = getLogger("eth_retry")
 
 # Types
 if sys.version_info >= (3, 10):
@@ -33,11 +36,11 @@ P = ParamSpec("P")
 def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
     """
     Decorator that will retry the function on:
-    - ConnectionError
-    - requests.exceptions.ConnectionError
-    - HTTPError
-    - asyncio.exceptions.TimeoutError
-    - ReadTimeout
+    - :class:`ConnectionError`
+    - :class:`requests.exceptions.ConnectionError`
+    - :class:`HTTPError`
+    - :class:`asyncio.exceptions.TimeoutError`
+    - :class:`ReadTimeout`
 
     It will also retry on specific ValueError exceptions:
     - Max rate limit reached
@@ -48,18 +51,19 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
     On repeat errors, will retry in increasing intervals.
     """
+
     min_sleep_time = int(ENVS.MIN_SLEEP_TIME)
     max_sleep_time = int(ENVS.MAX_SLEEP_TIME)
 
-    if asyncio.iscoroutinefunction(func):
+    if iscoroutinefunction(func):
 
-        @functools.wraps(func)
+        @wraps(func)
         async def auto_retry_wrap_async(*args: P.args, **kwargs: P.kwargs) -> T:
             failures = 0
             while True:
                 try:
                     return await func(*args, **kwargs)  # type: ignore
-                except asyncio.exceptions.TimeoutError as e:
+                except AsyncioTimeoutError as e:
                     logger.warning(
                         f"asyncio timeout [{failures}] {_get_caller_details_from_stack()}"
                     )
@@ -79,13 +83,13 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                 sleep_time = randrange(min_sleep_time, max_sleep_time)
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
-                await asyncio.sleep(failures * sleep_time)
+                await aiosleep(failures * sleep_time)
 
         return auto_retry_wrap_async  # type: ignore [return-value]
 
     else:
 
-        @functools.wraps(func)
+        @wraps(func)
         def auto_retry_wrap(*args: P.args, **kwargs: P.kwargs) -> T:
             failures = 0
             while True:
@@ -105,7 +109,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                 sleep_time = randrange(min_sleep_time, max_sleep_time)
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
-                sleep(failures * sleep_time)
+                timesleep(failures * sleep_time)
 
         return auto_retry_wrap
 
@@ -166,7 +170,7 @@ _aio_files = ["asyncio/events.py" "asyncio/base_events.py"]
 
 
 def _get_caller_details_from_stack() -> Optional[str]:
-    for frame in inspect.stack()[2:]:
+    for frame in stack()[2:]:
         if all(filename not in frame.filename for filename in _aio_files):
             details = f"{frame.filename} line {frame.lineno}"
             context = frame.code_context
