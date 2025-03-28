@@ -61,7 +61,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
             while True:
                 try:
                     return await func(*args, **kwargs)  # type: ignore
-                except asyncio.exceptions.AsyncioTimeoutError as e:
+                except AsyncioTimeoutError as e:
                     logger.warning(
                         f"asyncio timeout [{failures}] {_get_caller_details_from_stack()}"
                     )
