@@ -9,7 +9,7 @@ from inspect import stack
 from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
-from time import sleep
+from time import sleep as timesleep
 from typing import Callable, Optional, TypeVar, Union, overload
 
 import requests
@@ -51,7 +51,6 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
     On repeat errors, will retry in increasing intervals.
     """
-
     if iscoroutinefunction(func):
 
         @wraps(func)
