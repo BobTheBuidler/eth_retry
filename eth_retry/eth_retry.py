@@ -79,7 +79,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                 failures += 1
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
-                await sleep(failures * sleep_time)
+                await aiosleep(failures * sleep_time)
 
         return auto_retry_wrap_async  # type: ignore [return-value]
 
@@ -105,7 +105,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                 failures += 1
                 if ENVS.ETH_RETRY_DEBUG:
                     logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
-                sleep(failures * sleep_time)
+                timesleep(failures * sleep_time)
 
         return auto_retry_wrap
 
