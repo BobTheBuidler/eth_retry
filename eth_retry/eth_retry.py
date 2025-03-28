@@ -1,5 +1,9 @@
 import sys
-from asyncio import TimeoutError as AsyncioTimeoutError, iscoroutinefunction, sleep as aiosleep
+from asyncio import (
+    TimeoutError as AsyncioTimeoutError,
+    iscoroutinefunction,
+    sleep as aiosleep,
+)
 from functools import wraps
 from inspect import stack
 from json import JSONDecodeError
