@@ -141,7 +141,7 @@ def should_retry(e: Exception, failures: int) -> bool:
         # alchemy.io rate limiting
         "your app has exceeded its compute units per second capacity. if you have retries enabled, you can safely ignore this message. if not, check out https://docs.alchemy.com/reference/throughput",
     )
-    if any(filter(str(e).lower().__contains__, retry_on_errs)):
+    if any(filter(str(e).lower().__contains__, retry_on_errs)):  # type: ignore [arg-type]
         return True
 
     general_exceptions = (
