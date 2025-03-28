@@ -141,10 +141,10 @@ def should_retry(e: Exception, failures: int) -> bool:
         # alchemy.io rate limiting
         "your app has exceeded its compute units per second capacity. if you have retries enabled, you can safely ignore this message. if not, check out https://docs.alchemy.com/reference/throughput",
     )
-    if any(err in str(e).lower() for err in retry_on_errs):
+    if any(map(str(e).lower().__contains__, retry_on_errs)):
         return True
 
-    general_exceptions = [
+    general_exceptions = (
         ConnectionError,
         requests.exceptions.ConnectionError,
         HTTPError,
@@ -152,21 +152,23 @@ def should_retry(e: Exception, failures: int) -> bool:
         MaxRetryError,
         JSONDecodeError,
         ClientError,
-    ]
+    )
+
+    stre = str(e)
     if (
         any(isinstance(e, E) for E in general_exceptions)
-        and "Too Large" not in str(e)
-        and "404" not in str(e)
+        and "Too Large" not in stre
+        and "404" not in stre
     ):
         return True
     # This happens when brownie's deployments.db gets locked. Just retry.
-    elif isinstance(e, OperationalError) and "database is locked" in str(e):
+    elif isinstance(e, OperationalError) and "database is locked" in stre:
         return True
 
     return False
 
 
-_aio_files = ["asyncio/events.py" "asyncio/base_events.py"]
+_aio_files = "asyncio/events.py", "asyncio/base_events.py"
 
 
 def _get_caller_details_from_stack() -> Optional[str]:
