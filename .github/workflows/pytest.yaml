@@ -6,8 +6,7 @@ on:
     branches: [ master, dev ]
     paths:
       - '**.py'
-      - '**.pxd'
-      - '**.pyx'
+      - '**.so'
       - '**/pytest.yaml'
       - '!**/docs/conf.py'
       
