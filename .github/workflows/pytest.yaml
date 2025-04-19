@@ -58,6 +58,7 @@ jobs:
 
       - name: Install eth-retry
         run: |
+          poetry run pip install cython
           poetry install --no-interaction
       
       - name: Setup brownie networks
