@@ -35,6 +35,20 @@ P = ParamSpec("P")
 CoroutineFunction = Callable[P, Coroutine[Any, Any, T]]
 
 
+# Environment variables
+ETH_RETRY_DISABLED = bool(ENVS.ETH_RETRY_DISABLED)
+MAX_RETRIES = int(ENVS.MAX_RETRIES)
+MIN_SLEEP_TIME = int(ENVS.MIN_SLEEP_TIME)
+MAX_SLEEP_TIME = int(ENVS.MAX_SLEEP_TIME)
+SUPPRESS_LOGS = int(ENVS.ETH_RETRY_SUPPRESS_LOGS)
+DEBUG_MODE = bool(ENVS.ETH_RETRY_DEBUG)
+
+# logger methods
+log_info = logger.info
+log_warning = logger.warning
+log_exception = logger.exception
+
+
 @overload
 def auto_retry(func: CoroutineFunction[P, T]) -> CoroutineFunction[P, T]: ...
 @overload
@@ -57,10 +71,6 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
     On repeat errors, will retry in increasing intervals.
     """
-
-    min_sleep_time = int(ENVS.MIN_SLEEP_TIME)
-    max_sleep_time = int(ENVS.MAX_SLEEP_TIME)
-
     if iscoroutinefunction(func):
 
         @wraps(func)
@@ -70,25 +80,25 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                 try:
                     return await func(*args, **kwargs)  # type: ignore
                 except AsyncioTimeoutError as e:
-                    logger.warning(
-                        f"asyncio timeout [{failures}] {_get_caller_details_from_stack()}"
+                    log_warning(
+                        "asyncio timeout [%s] %s", failures, _get_caller_details_from_stack()
                     )
-                    if ENVS.ETH_RETRY_DEBUG:
-                        logger.exception(e)
+                    if DEBUG_MODE:
+                        log_exception(e)
                     continue
                 except Exception as e:
                     if not should_retry(e, failures):
                         raise
-                    if failures > ENVS.ETH_RETRY_SUPPRESS_LOGS:
-                        logger.warning(f"{str(e)} [{failures}]")
-                    if ENVS.ETH_RETRY_DEBUG:
-                        logger.exception(e)
+                    if failures > ETH_RETRY_SUPPRESS_LOGS:
+                        log_warning("%s [%s]", str(e), failures)
+                    if DEBUG_MODE:
+                        log_exception(e)
 
                 # Attempt failed, sleep time.
                 failures += 1
-                sleep_time = randrange(min_sleep_time, max_sleep_time)
-                if ENVS.ETH_RETRY_DEBUG:
-                    logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
+                sleep_time = randrange(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
+                if DEBUG_MODE:
+                    log_info("sleeping %s seconds.", round(failures * sleep_time, 2))
                 await aiosleep(failures * sleep_time)
 
         return auto_retry_wrap_async  # type: ignore [return-value]
@@ -105,23 +115,23 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                 except Exception as e:
                     if not should_retry(e, failures):
                         raise
-                    if failures > ENVS.ETH_RETRY_SUPPRESS_LOGS:
-                        logger.warning(f"{str(e)} [{failures}]")
-                    if ENVS.ETH_RETRY_DEBUG:
-                        logger.exception(e)
+                    if failures > ETH_RETRY_SUPPRESS_LOGS:
+                        log_warning("%s [%s]" , str(e), failures)
+                    if DEBUG_MODE:
+                        log_exception(e)
 
                 # Attempt failed, sleep time.
                 failures += 1
-                sleep_time = randrange(min_sleep_time, max_sleep_time)
-                if ENVS.ETH_RETRY_DEBUG:
-                    logger.info(f"sleeping {round(failures * sleep_time, 2)} seconds.")
+                sleep_time = randrange(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
+                if DEBUG_MODE:
+                    log_info("sleeping %s seconds.", round(failures * sleep_time, 2))
                 timesleep(failures * sleep_time)
 
         return auto_retry_wrap
 
 
 def should_retry(e: Exception, failures: int) -> bool:
-    if ENVS.ETH_RETRY_DISABLED or failures > ENVS.MAX_RETRIES:
+    if ETH_RETRY_DISABLED or failures > MAX_RETRIES:
         return False
 
     retry_on_errs = (
