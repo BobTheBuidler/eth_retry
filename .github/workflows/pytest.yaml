@@ -58,7 +58,7 @@ jobs:
 
       - name: Install eth-retry
         run: |
-          poetry install
+          poetry install --no-interaction
       
       - name: Setup brownie networks
         run: |
