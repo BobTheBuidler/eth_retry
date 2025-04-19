@@ -69,4 +69,3 @@ jobs:
         env:
           PYTEST_NETWORK: mainnet
         run: poetry run pytest -s -v
-      
