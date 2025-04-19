@@ -36,18 +36,18 @@ CoroutineFunction = Callable[P, Coroutine[Any, Any, T]]
 
 
 # Environment variables
-ETH_RETRY_DISABLED = bool(ENVS.ETH_RETRY_DISABLED)
-MAX_RETRIES = int(ENVS.MAX_RETRIES)
-MIN_SLEEP_TIME = int(ENVS.MIN_SLEEP_TIME)
-MAX_SLEEP_TIME = int(ENVS.MAX_SLEEP_TIME)
-SUPPRESS_LOGS = int(ENVS.ETH_RETRY_SUPPRESS_LOGS)
-DEBUG_MODE = bool(ENVS.ETH_RETRY_DEBUG)
+cdef bint ETH_RETRY_DISABLED = bool(ENVS.ETH_RETRY_DISABLED)
+cdef uint_8 MAX_RETRIES = int(ENVS.MAX_RETRIES)
+cdef int MIN_SLEEP_TIME = int(ENVS.MIN_SLEEP_TIME)
+cdef int MAX_SLEEP_TIME = int(ENVS.MAX_SLEEP_TIME)
+cdef uint_8 SUPPRESS_LOGS = int(ENVS.ETH_RETRY_SUPPRESS_LOGS)
+cdef bint DEBUG_MODE = bool(ENVS.ETH_RETRY_DEBUG)
 
 
 # logger methods
-log_info = logger.info
-log_warning = logger.warning
-log_exception = logger.exception
+cdef object log_info = logger.info
+cdef object log_warning = logger.warning
+cdef object log_exception = logger.exception
 
 
 @overload
@@ -76,7 +76,8 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
         @wraps(func)
         async def auto_retry_wrap_async(*args: P.args, **kwargs: P.kwargs) -> T:
-            failures = 0
+            cdef float sleep_time
+            cdef uint_8 failures = 0
             while True:
                 try:
                     return await func(*args, **kwargs)  # type: ignore
@@ -110,7 +111,8 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
         @wraps(func)
         def auto_retry_wrap(*args: P.args, **kwargs: P.kwargs) -> T:
-            failures = 0
+            cdef float sleep_time
+            cdef uint_8 failures = 0
             while True:
                 # Attempt to execute `func` and return response
                 try:
@@ -133,7 +135,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
         return auto_retry_wrap
 
 
-def should_retry(e: Exception, failures: int) -> bool:
+cdef bint should_retry(e: Exception, uint_8 failures):
     if ETH_RETRY_DISABLED or failures > MAX_RETRIES:
         return False
 
