@@ -81,7 +81,9 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                     return await func(*args, **kwargs)  # type: ignore
                 except AsyncioTimeoutError as e:
                     log_warning(
-                        "asyncio timeout [%s] %s", failures, _get_caller_details_from_stack()
+                        "asyncio timeout [%s] %s",
+                        failures,
+                        _get_caller_details_from_stack(),
                     )
                     if DEBUG_MODE:
                         log_exception(e)
@@ -116,7 +118,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                     if not should_retry(e, failures):
                         raise
                     if failures > ETH_RETRY_SUPPRESS_LOGS:
-                        log_warning("%s [%s]" , str(e), failures)
+                        log_warning("%s [%s]", str(e), failures)
                     if DEBUG_MODE:
                         log_exception(e)
 
