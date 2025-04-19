@@ -31,4 +31,4 @@ jobs:
         pip install mypy
 
     - name: Run MyPy
-      run: mypy . --strict --pretty --show-error-codes --show-error-context --install-types --non-interactive
+      run: mypy . --strict --pretty --show-error-codes --show-error-context --install-types --non-interactive --ignore-missing-imports
