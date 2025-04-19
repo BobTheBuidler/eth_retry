@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   mypyc-3-8:
-    runs-on: ubuntu-stable
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -50,7 +50,7 @@ jobs:
         
   mypyc-3-9:
     needs: mypyc-3-8
-    runs-on: ubuntu-stable
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -89,7 +89,7 @@ jobs:
         
   mypyc-3-10:
     needs: [mypyc-3-8, mypyc-3-9]
-    runs-on: ubuntu-stable
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -128,7 +128,7 @@ jobs:
         
   mypyc-3-11:
     needs: [mypyc-3-8, mypyc-3-9, mypyc-3-10]
-    runs-on: ubuntu-stable
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -167,7 +167,7 @@ jobs:
         
   mypyc-3-12:
     needs: [mypyc-3-8, mypyc-3-9, mypyc-3-10, mypyc-3-11]
-    runs-on: ubuntu-stable
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -206,7 +206,7 @@ jobs:
         
   mypyc-3-13:
     needs: [mypyc-3-8, mypyc-3-9, mypyc-3-10, mypyc-3-11, mypyc-3-12]
-    runs-on: ubuntu-stable
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
