@@ -6,9 +6,9 @@ on:
     branches: [ master, dev ]
     paths:
       - '**.py'
-      - '**.pxd'
-      - '**.pyx'
-      - '**/pytest.yaml'
+      - '**.so'
+      - 'pyproject.yaml'
+      - 'poetry.lock'
       - '!**/docs/conf.py'
       
 concurrency:
