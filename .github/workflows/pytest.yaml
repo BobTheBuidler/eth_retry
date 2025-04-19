@@ -66,5 +66,5 @@ jobs:
         continue-on-error: true
       
       - name: Run test suite
-        run: PYTEST_NETWORK=mainnet pytest
+        run: PYTEST_NETWORK=mainnet poetry run pytest
       
