@@ -19,7 +19,7 @@ joblib = "*"
 pytest = "*"
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "wheel"]
 
 [tool.black]
 line-length = 100
