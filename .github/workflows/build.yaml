@@ -44,7 +44,7 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "chore: \`mypyc\` for python${{ matrix.pyversion }}"
+        git commit -m "chore: \`mypyc\` for python3.8"
         git push
 
         
@@ -83,7 +83,7 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "chore: \`mypyc\` for python${{ matrix.pyversion }}"
+        git commit -m "chore: \`mypyc\` for python3.9"
         git push
 
         
@@ -122,7 +122,7 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "chore: \`mypyc\` for python${{ matrix.pyversion }}"
+        git commit -m "chore: \`mypyc\` for python3.10"
         git push
 
         
@@ -161,7 +161,7 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "chore: \`mypyc\` for python${{ matrix.pyversion }}"
+        git commit -m "chore: \`mypyc\` for python3.11"
         git push
 
         
@@ -200,7 +200,7 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "chore: \`mypyc\` for python${{ matrix.pyversion }}"
+        git commit -m "chore: \`mypyc\` for python3.12"
         git push
 
         
@@ -239,6 +239,6 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "chore: \`mypyc\` for python${{ matrix.pyversion }}"
+        git commit -m "chore: \`mypyc\` for python3.13"
         git push
 
