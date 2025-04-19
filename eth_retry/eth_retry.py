@@ -43,6 +43,7 @@ MAX_SLEEP_TIME = int(ENVS.MAX_SLEEP_TIME)
 SUPPRESS_LOGS = int(ENVS.ETH_RETRY_SUPPRESS_LOGS)
 DEBUG_MODE = bool(ENVS.ETH_RETRY_DEBUG)
 
+
 # logger methods
 log_info = logger.info
 log_warning = logger.warning
