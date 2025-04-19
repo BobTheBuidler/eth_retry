@@ -1,3 +1,0 @@
-eth-brownie
-joblib
-pytest

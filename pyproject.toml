@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "eth-retry"
+version = "0.2.3"
+description = "Provides a decorator that automatically catches known transient exceptions that are common in the Ethereum/EVM ecosystem and reattempts to evaluate your decorated function"
+authors = ["BobTheBuidler <bobthebuidlerdefi@gmail.com>"]
+homepage = "https://github.com/BobTheBuidler/eth_retry"
+repository = "https://github.com/BobTheBuidler/eth_retry"
+documentation = "https://github.com/BobTheBuidler/eth_retry"
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.13"
+typing_extensions = ">=4.0.1"
+
+[tool.poetry.group.dev.dependencies]
+eth-brownie = "*"
+joblib = "*"
+pytest = "*"
+
+[build-system]
+requires = ["setuptools"]
+
+[tool.black]
+line-length = 100
