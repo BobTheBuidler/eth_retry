@@ -62,7 +62,7 @@ jobs:
       
       - name: Setup brownie networks
         run: |
-          brownie networks modify mainnet host=${{ secrets.WEB3_PROVIDER }}
+          poetry run brownie networks modify mainnet host=${{ secrets.WEB3_PROVIDER }}
         continue-on-error: true
       
       - name: Run test suite
