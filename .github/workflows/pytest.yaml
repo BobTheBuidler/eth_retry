@@ -41,7 +41,6 @@ jobs:
 
       - name: Install eth-retry
         run: |
-          pip install -r requirements-dev.txt
           pip install -e .
       
       - name: Setup brownie networks
