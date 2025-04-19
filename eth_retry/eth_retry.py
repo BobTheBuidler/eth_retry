@@ -92,7 +92,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                 except Exception as e:
                     if not should_retry(e, failures):
                         raise
-                    if failures > ETH_RETRY_SUPPRESS_LOGS:
+                    if failures > SUPPRESS_LOGS:
                         log_warning("%s [%s]", str(e), failures)
                     if DEBUG_MODE:
                         log_exception(e)
@@ -118,7 +118,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                 except Exception as e:
                     if not should_retry(e, failures):
                         raise
-                    if failures > ETH_RETRY_SUPPRESS_LOGS:
+                    if failures > SUPPRESS_LOGS:
                         log_warning("%s [%s]", str(e), failures)
                     if DEBUG_MODE:
                         log_exception(e)
