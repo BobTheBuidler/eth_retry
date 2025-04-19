@@ -7,8 +7,7 @@ from joblib import Parallel, delayed
 
 @auto_retry
 def do_work(w3):
-    work = Parallel(100, "threading")(delayed(getattr)(w3.eth, "chain_id") for i in range(5000))
-    return work
+    Parallel(100, "threading")(delayed(getattr)(w3.eth, "chain_id") for _ in range(5000))
 
 
 def test_auto_retry_sync():
