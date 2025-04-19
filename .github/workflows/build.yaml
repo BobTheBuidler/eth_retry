@@ -28,7 +28,7 @@ jobs:
         python-version: ${{ matrix.pyversion }}
 
     - name: Install Mypyc
-      run: pip install mypy[mypyc]
+      run: pip install mypy[mypyc] types-requests
 
     - name: Run Mypyc
       run: make mypyc
