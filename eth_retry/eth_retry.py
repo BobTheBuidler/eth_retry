@@ -10,7 +10,7 @@ from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
-from typing import Any, Callable, Coroutine, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Coroutine, Final, Optional, TypeVar, Union, overload
 
 import requests
 
@@ -29,32 +29,32 @@ if sys.version_info >= (3, 10):
 else:
     from typing_extensions import ParamSpec
 
-T = TypeVar("T")
-P = ParamSpec("P")
+__T = TypeVar("__T")
+__P = ParamSpec("__P")
 
-CoroutineFunction = Callable[P, Coroutine[Any, Any, T]]
+CoroutineFunction = Callable[__P, Coroutine[Any, Any, __T]]
 
 
 # Environment variables
-ETH_RETRY_DISABLED = bool(ENVS.ETH_RETRY_DISABLED)
-MAX_RETRIES = int(ENVS.MAX_RETRIES)
-MIN_SLEEP_TIME = int(ENVS.MIN_SLEEP_TIME)
-MAX_SLEEP_TIME = int(ENVS.MAX_SLEEP_TIME)
-SUPPRESS_LOGS = int(ENVS.ETH_RETRY_SUPPRESS_LOGS)
-DEBUG_MODE = bool(ENVS.ETH_RETRY_DEBUG)
+ETH_RETRY_DISABLED: Final = bool(ENVS.ETH_RETRY_DISABLED)
+MAX_RETRIES: Final = int(ENVS.MAX_RETRIES)
+MIN_SLEEP_TIME: Final = int(ENVS.MIN_SLEEP_TIME)
+MAX_SLEEP_TIME: Final = int(ENVS.MAX_SLEEP_TIME)
+SUPPRESS_LOGS: Final = int(ENVS.ETH_RETRY_SUPPRESS_LOGS)
+DEBUG_MODE: Final = bool(ENVS.ETH_RETRY_DEBUG)
 
 
 # logger methods
-log_info = logger.info
-log_warning = logger.warning
-log_exception = logger.exception
+log_info: Final = logger.info
+log_warning: Final = logger.warning
+log_exception: Final = logger.exception
 
 
 @overload
-def auto_retry(func: CoroutineFunction[P, T]) -> CoroutineFunction[P, T]: ...
+def auto_retry(func: CoroutineFunction[__P, __T]) -> CoroutineFunction[__P, __T]: ...
 @overload
-def auto_retry(func: Callable[P, T]) -> Callable[P, T]: ...
-def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
+def auto_retry(func: Callable[__P, __T]) -> Callable[__P, __T]: ...
+def auto_retry(func: Callable[__P, __T]) -> Callable[__P, __T]:
     """
     Decorator that will retry the function on:
     - :class:`ConnectionError`
@@ -75,7 +75,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
     if iscoroutinefunction(func):
 
         @wraps(func)
-        async def auto_retry_wrap_async(*args: P.args, **kwargs: P.kwargs) -> T:
+        async def auto_retry_wrap_async(*args: __P.args, **kwargs: __P.kwargs) -> __T:
             failures = 0
             while True:
                 try:
@@ -109,7 +109,7 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
     else:
 
         @wraps(func)
-        def auto_retry_wrap(*args: P.args, **kwargs: P.kwargs) -> T:
+        def auto_retry_wrap(*args: __P.args, **kwargs: __P.kwargs) -> __T:
             failures = 0
             while True:
                 # Attempt to execute `func` and return response
@@ -187,7 +187,7 @@ def should_retry(e: Exception, failures: int) -> bool:
     return False
 
 
-_aio_files = "asyncio/events.py", "asyncio/base_events.py"
+_aio_files: Final = "asyncio/events.py", "asyncio/base_events.py"
 
 
 def _get_caller_details_from_stack() -> Optional[str]:
@@ -197,3 +197,6 @@ def _get_caller_details_from_stack() -> Optional[str]:
             context = frame.code_context
             return details if context is None else f"{details} {[context[0].strip()]}"
     return None
+
+
+__all__ = ["auto_retry"]
