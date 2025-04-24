@@ -105,12 +105,12 @@ def auto_retry(
     """
     if func is None:
         return partial(
-            auto_retry, 
-            max_retries=max_retries, 
-            min_sleep_time=min_sleep_time, 
+            auto_retry,
+            max_retries=max_retries,
+            min_sleep_time=min_sleep_time,
             max_sleep_time=max_sleep_time,
         )
-    
+
     if iscoroutinefunction(func):
 
         @wraps(func)
