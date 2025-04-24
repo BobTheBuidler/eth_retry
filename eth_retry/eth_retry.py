@@ -33,7 +33,7 @@ __T = TypeVar("__T")
 __P = ParamSpec("__P")
 
 CoroutineFunction = Callable[__P, Coroutine[Any, Any, __T]]
-Decorator = Callable[[Callable[__P, __T]], Callable[__P, __T]]
+Decorator = partial[Callable[[Callable[__P, __T]], Callable[__P, __T]]]
 
 
 # Environment variables
@@ -59,7 +59,7 @@ def auto_retry(
     min_sleep_time: int = MIN_SLEEP_TIME,
     max_sleep_time: int = MAX_SLEEP_TIME,
     suppress_logs: int = SUPPRESS_LOGS,
-) -> partial[Decorator[__P, __T]]: ...
+) -> Decorator[__P, __T]: ...
 @overload
 def auto_retry(
     func: CoroutineFunction[__P, __T],
