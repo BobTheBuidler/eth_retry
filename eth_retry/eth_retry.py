@@ -111,7 +111,7 @@ def auto_retry(
             max_sleep_time=max_sleep_time,
             suppress_logs=suppress_logs,
         )
-    
+
     if iscoroutinefunction(func):
 
         @wraps(func)
