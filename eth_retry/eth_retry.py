@@ -59,7 +59,7 @@ def auto_retry(
     min_sleep_time: int = MIN_SLEEP_TIME,
     max_sleep_time: int = MAX_SLEEP_TIME,
     suppress_logs: int = SUPPRESS_LOGS,
-) -> Decorator: ...
+) -> Decorator: ...  # type: ignore [type-arg]
 @overload
 def auto_retry(
     func: CoroutineFunction[__P, __T],
@@ -85,7 +85,7 @@ def auto_retry(
     min_sleep_time: int = MIN_SLEEP_TIME,
     max_sleep_time: int = MAX_SLEEP_TIME,
     suppress_logs: int = SUPPRESS_LOGS,
-) -> Union[Callable[__P, __T], Decorator]:
+) -> Union[Callable[__P, __T], Decorator]:  # type: ignore [type-arg]
     """
     Decorator that will retry the function on:
     - :class:`ConnectionError`
