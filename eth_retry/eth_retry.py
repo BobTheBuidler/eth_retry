@@ -4,7 +4,7 @@ from asyncio import (
     iscoroutinefunction,
     sleep as aiosleep,
 )
-from functools import wraps
+from functools import partial, wraps
 from inspect import stack
 from json import JSONDecodeError
 from logging import getLogger
@@ -33,6 +33,7 @@ __T = TypeVar("__T")
 __P = ParamSpec("__P")
 
 CoroutineFunction = Callable[__P, Coroutine[Any, Any, __T]]
+Decorator = Callable[[Callable[__P, __T]], Callable[__P, __T]]
 
 
 # Environment variables
@@ -51,10 +52,40 @@ log_exception: Final = logger.exception
 
 
 @overload
-def auto_retry(func: CoroutineFunction[__P, __T]) -> CoroutineFunction[__P, __T]: ...
+def auto_retry(
+    func: None = None,
+    *,
+    max_retries: int = MAX_RETRIES,
+    min_sleep_time: int = MIN_SLEEP_TIME,
+    max_sleep_time: int = MAX_SLEEP_TIME,
+    suppress_logs: int = SUPPRESS_LOGS,
+) -> Decorator: ...  # type: ignore [type-arg]
 @overload
-def auto_retry(func: Callable[__P, __T]) -> Callable[__P, __T]: ...
-def auto_retry(func: Callable[__P, __T]) -> Callable[__P, __T]:
+def auto_retry(
+    func: CoroutineFunction[__P, __T],
+    *,
+    max_retries: int = MAX_RETRIES,
+    min_sleep_time: int = MIN_SLEEP_TIME,
+    max_sleep_time: int = MAX_SLEEP_TIME,
+    suppress_logs: int = SUPPRESS_LOGS,
+) -> CoroutineFunction[__P, __T]: ...
+@overload
+def auto_retry(
+    func: Callable[__P, __T],
+    *,
+    max_retries: int = MAX_RETRIES,
+    min_sleep_time: int = MIN_SLEEP_TIME,
+    max_sleep_time: int = MAX_SLEEP_TIME,
+    suppress_logs: int = SUPPRESS_LOGS,
+) -> Callable[__P, __T]: ...
+def auto_retry(
+    func: Optional[Callable[__P, __T]] = None,
+    *,
+    max_retries: int = MAX_RETRIES,
+    min_sleep_time: int = MIN_SLEEP_TIME,
+    max_sleep_time: int = MAX_SLEEP_TIME,
+    suppress_logs: int = SUPPRESS_LOGS,
+) -> Union[Callable[__P, __T], Decorator]:  # type: ignore [type-arg]
     """
     Decorator that will retry the function on:
     - :class:`ConnectionError`
@@ -72,6 +103,15 @@ def auto_retry(func: Callable[__P, __T]) -> Callable[__P, __T]:
 
     On repeat errors, will retry in increasing intervals.
     """
+    if func is None:
+        return partial(
+            auto_retry,
+            max_retries=max_retries,
+            min_sleep_time=min_sleep_time,
+            max_sleep_time=max_sleep_time,
+            suppress_logs=suppress_logs,
+        )
+
     if iscoroutinefunction(func):
 
         @wraps(func)
@@ -90,16 +130,16 @@ def auto_retry(func: Callable[__P, __T]) -> Callable[__P, __T]:
                         log_exception(e)
                     continue
                 except Exception as e:
-                    if not should_retry(e, failures):
+                    if not should_retry(e, failures, max_retries):
                         raise
-                    if failures > SUPPRESS_LOGS:
+                    if failures > suppress_logs:
                         log_warning("%s [%s]", str(e), failures)
                     if DEBUG_MODE:
                         log_exception(e)
 
                 # Attempt failed, sleep time.
                 failures += 1
-                sleep_time = randrange(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
+                sleep_time = randrange(min_sleep_time, max_sleep_time)
                 if DEBUG_MODE:
                     log_info("sleeping %s seconds.", round(failures * sleep_time, 2))
                 await aiosleep(failures * sleep_time)
@@ -116,16 +156,16 @@ def auto_retry(func: Callable[__P, __T]) -> Callable[__P, __T]:
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
-                    if not should_retry(e, failures):
+                    if not should_retry(e, failures, max_retries):
                         raise
-                    if failures > SUPPRESS_LOGS:
+                    if failures > suppress_logs:
                         log_warning("%s [%s]", str(e), failures)
                     if DEBUG_MODE:
                         log_exception(e)
 
                 # Attempt failed, sleep time.
                 failures += 1
-                sleep_time = randrange(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
+                sleep_time = randrange(min_sleep_time, max_sleep_time)
                 if DEBUG_MODE:
                     log_info("sleeping %s seconds.", round(failures * sleep_time, 2))
                 timesleep(failures * sleep_time)
@@ -133,8 +173,8 @@ def auto_retry(func: Callable[__P, __T]) -> Callable[__P, __T]:
         return auto_retry_wrap
 
 
-def should_retry(e: Exception, failures: int) -> bool:
-    if ETH_RETRY_DISABLED or failures > MAX_RETRIES:
+def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
+    if ETH_RETRY_DISABLED or failures > max_retries:
         return False
 
     retry_on_errs = (
