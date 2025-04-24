@@ -33,7 +33,7 @@ __T = TypeVar("__T")
 __P = ParamSpec("__P")
 
 CoroutineFunction = Callable[__P, Coroutine[Any, Any, __T]]
-Decorator = partial[Callable[[Callable[__P, __T]], Callable[__P, __T]]]
+Decorator = "partial[Callable[[Callable[__P, __T]], Callable[__P, __T]]]"
 
 
 # Environment variables
