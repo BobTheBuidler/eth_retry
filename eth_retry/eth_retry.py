@@ -78,7 +78,7 @@ def auto_retry(
     max_sleep_time: int = MAX_SLEEP_TIME,
     suppress_logs: int = SUPPRESS_LOGS,
 ) -> Callable[__P, __T]: ...
-def auto_retry(
+def auto_retry(  # type: ignore [misc]
     func: Optional[Callable[__P, __T]] = None,
     *,
     max_retries: int = MAX_RETRIES,
@@ -105,10 +105,11 @@ def auto_retry(
     """
     if func is None:
         return partial(
-            auto_retry, 
-            max_retries=max_retries, 
-            min_sleep_time=min_sleep_time, 
+            auto_retry,
+            max_retries=max_retries,
+            min_sleep_time=min_sleep_time,
             max_sleep_time=max_sleep_time,
+            suppress_logs=suppress_logs,
         )
     
     if iscoroutinefunction(func):
