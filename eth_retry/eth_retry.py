@@ -5,7 +5,7 @@ from asyncio import (
     sleep as aiosleep,
 )
 from functools import partial, wraps
-from inspect import stack
+from inspect import isasyncgenfunction, stack
 from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
@@ -111,6 +111,9 @@ def auto_retry(
             max_sleep_time=max_sleep_time,
             suppress_logs=suppress_logs,
         )
+
+    if isasyncgenfunction(func):
+        raise ValueError("async gen function not supported")
 
     if iscoroutinefunction(func):
 
