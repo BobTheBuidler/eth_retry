@@ -112,9 +112,19 @@ def auto_retry(
             suppress_logs=suppress_logs,
         )
 
+    # validate params
     if isasyncgenfunction(func):
         raise ValueError("async gen function not supported")
+    if not isinstance(max_retries, int):
+        raise TypeError(f"'max_retries' must be an integer, not {max_retries}")
+    if not isinstance(min_sleep_time, int):
+        raise TypeError(f"'min_sleep_time' must be an integer, not {min_sleep_time}")
+    if not isinstance(max_sleep_time, int):
+        raise TypeError(f"'max_sleep_time' must be an integer, not {max_sleep_time}")
+    if not isinstance(suppress_logs, int):
+        raise TypeError(f"'suppress_logs' must be an integer, not {suppress_logs}")
 
+    # define wrapper
     if iscoroutinefunction(func):
 
         @wraps(func)
