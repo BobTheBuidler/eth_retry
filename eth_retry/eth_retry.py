@@ -213,6 +213,8 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         "cannot assign requested address",
         # alchemy.io rate limiting
         "your app has exceeded its compute units per second capacity. if you have retries enabled, you can safely ignore this message. if not, check out https://docs.alchemy.com/reference/throughput",
+        # quicknode.com rate limiting
+        "request limit reached - reduce calls per second or upgrade your account at quicknode.com",
     )
     if any(filter(str(e).lower().__contains__, retry_on_errs)):  # type: ignore [arg-type]
         return True
