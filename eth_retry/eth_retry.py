@@ -115,7 +115,7 @@ def auto_retry(
         raise TypeError(f"'max_sleep_time' must be an integer, not {max_sleep_time}")
     if not isinstance(suppress_logs, int):
         raise TypeError(f"'suppress_logs' must be an integer, not {suppress_logs}")
-    
+
     if func is None:
         return partial(
             auto_retry,
