@@ -103,14 +103,6 @@ def auto_retry(
 
     On repeat errors, will retry in increasing intervals.
     """
-    if func is None:
-        return partial(
-            auto_retry,
-            max_retries=max_retries,
-            min_sleep_time=min_sleep_time,
-            max_sleep_time=max_sleep_time,
-            suppress_logs=suppress_logs,
-        )
 
     # validate params
     if isasyncgenfunction(func):
@@ -123,6 +115,15 @@ def auto_retry(
         raise TypeError(f"'max_sleep_time' must be an integer, not {max_sleep_time}")
     if not isinstance(suppress_logs, int):
         raise TypeError(f"'suppress_logs' must be an integer, not {suppress_logs}")
+
+    if func is None:
+        return partial(
+            auto_retry,
+            max_retries=max_retries,
+            min_sleep_time=min_sleep_time,
+            max_sleep_time=max_sleep_time,
+            suppress_logs=suppress_logs,
+        )
 
     # define wrapper
     if iscoroutinefunction(func):
