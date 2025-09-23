@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
 
       - name: Setup Python (faster than using Python container)
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.pyversion }}
 
@@ -55,14 +55,15 @@ jobs:
       - name: Install Poetry
         if: steps.cached-poetry.outputs.cache-hit != 'true' && matrix.pyversion != '3.8'
         uses: snok/install-poetry@v1
+      
+      - name: Upgrade Build Deps
+        run: poetry run pip install -U setuptools wheel
 
       - name: Install eth-retry
-        run: |
-          poetry install --no-interaction
+        run: poetry install --no-interaction
       
       - name: Setup brownie networks
-        run: |
-          poetry run brownie networks modify mainnet host=${{ secrets.WEB3_PROVIDER }}
+        run: poetry run brownie networks modify mainnet host=${{ secrets.WEB3_PROVIDER }}
         continue-on-error: true
       
       - name: Run test suite

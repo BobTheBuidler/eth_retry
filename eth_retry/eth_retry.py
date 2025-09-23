@@ -4,13 +4,13 @@ from asyncio import (
     iscoroutinefunction,
     sleep as aiosleep,
 )
-from functools import wraps
-from inspect import stack
+from functools import partial, wraps
+from inspect import isasyncgenfunction, stack
 from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
-from typing import Any, Callable, Coroutine, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Coroutine, Final, Optional, TypeVar, Union, overload
 
 import requests
 
@@ -29,32 +29,63 @@ if sys.version_info >= (3, 10):
 else:
     from typing_extensions import ParamSpec
 
-T = TypeVar("T")
-P = ParamSpec("P")
+__T = TypeVar("__T")
+__P = ParamSpec("__P")
 
-CoroutineFunction = Callable[P, Coroutine[Any, Any, T]]
+CoroutineFunction = Callable[__P, Coroutine[Any, Any, __T]]
+Decorator = Callable[[Callable[__P, __T]], Callable[__P, __T]]
 
 
 # Environment variables
-ETH_RETRY_DISABLED = bool(ENVS.ETH_RETRY_DISABLED)
-MAX_RETRIES = int(ENVS.MAX_RETRIES)
-MIN_SLEEP_TIME = int(ENVS.MIN_SLEEP_TIME)
-MAX_SLEEP_TIME = int(ENVS.MAX_SLEEP_TIME)
-SUPPRESS_LOGS = int(ENVS.ETH_RETRY_SUPPRESS_LOGS)
-DEBUG_MODE = bool(ENVS.ETH_RETRY_DEBUG)
+ETH_RETRY_DISABLED: Final = bool(ENVS.ETH_RETRY_DISABLED)
+MAX_RETRIES: Final = int(ENVS.MAX_RETRIES)
+MIN_SLEEP_TIME: Final = int(ENVS.MIN_SLEEP_TIME)
+MAX_SLEEP_TIME: Final = int(ENVS.MAX_SLEEP_TIME)
+SUPPRESS_LOGS: Final = int(ENVS.ETH_RETRY_SUPPRESS_LOGS)
+DEBUG_MODE: Final = bool(ENVS.ETH_RETRY_DEBUG)
 
 
 # logger methods
-log_info = logger.info
-log_warning = logger.warning
-log_exception = logger.exception
+log_info: Final = logger.info
+log_warning: Final = logger.warning
+log_exception: Final = logger.exception
 
 
 @overload
-def auto_retry(func: CoroutineFunction[P, T]) -> CoroutineFunction[P, T]: ...
+def auto_retry(
+    func: None = None,
+    *,
+    max_retries: int = MAX_RETRIES,
+    min_sleep_time: int = MIN_SLEEP_TIME,
+    max_sleep_time: int = MAX_SLEEP_TIME,
+    suppress_logs: int = SUPPRESS_LOGS,
+) -> Decorator: ...  # type: ignore [type-arg]
 @overload
-def auto_retry(func: Callable[P, T]) -> Callable[P, T]: ...
-def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
+def auto_retry(
+    func: CoroutineFunction[__P, __T],
+    *,
+    max_retries: int = MAX_RETRIES,
+    min_sleep_time: int = MIN_SLEEP_TIME,
+    max_sleep_time: int = MAX_SLEEP_TIME,
+    suppress_logs: int = SUPPRESS_LOGS,
+) -> CoroutineFunction[__P, __T]: ...
+@overload
+def auto_retry(
+    func: Callable[__P, __T],
+    *,
+    max_retries: int = MAX_RETRIES,
+    min_sleep_time: int = MIN_SLEEP_TIME,
+    max_sleep_time: int = MAX_SLEEP_TIME,
+    suppress_logs: int = SUPPRESS_LOGS,
+) -> Callable[__P, __T]: ...
+def auto_retry(
+    func: Optional[Callable[__P, __T]] = None,
+    *,
+    max_retries: int = MAX_RETRIES,
+    min_sleep_time: int = MIN_SLEEP_TIME,
+    max_sleep_time: int = MAX_SLEEP_TIME,
+    suppress_logs: int = SUPPRESS_LOGS,
+) -> Union[Callable[__P, __T], Decorator]:  # type: ignore [type-arg]
     """
     Decorator that will retry the function on:
     - :class:`ConnectionError`
@@ -72,10 +103,33 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
 
     On repeat errors, will retry in increasing intervals.
     """
+
+    # validate params
+    if isasyncgenfunction(func):
+        raise ValueError("async gen function not supported")
+    if not isinstance(max_retries, int):
+        raise TypeError(f"'max_retries' must be an integer, not {max_retries}")
+    if not isinstance(min_sleep_time, int):
+        raise TypeError(f"'min_sleep_time' must be an integer, not {min_sleep_time}")
+    if not isinstance(max_sleep_time, int):
+        raise TypeError(f"'max_sleep_time' must be an integer, not {max_sleep_time}")
+    if not isinstance(suppress_logs, int):
+        raise TypeError(f"'suppress_logs' must be an integer, not {suppress_logs}")
+
+    if func is None:
+        return partial(
+            auto_retry,
+            max_retries=max_retries,
+            min_sleep_time=min_sleep_time,
+            max_sleep_time=max_sleep_time,
+            suppress_logs=suppress_logs,
+        )
+
+    # define wrapper
     if iscoroutinefunction(func):
 
         @wraps(func)
-        async def auto_retry_wrap_async(*args: P.args, **kwargs: P.kwargs) -> T:
+        async def auto_retry_wrap_async(*args: __P.args, **kwargs: __P.kwargs) -> __T:
             failures = 0
             while True:
                 try:
@@ -90,16 +144,16 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
                         log_exception(e)
                     continue
                 except Exception as e:
-                    if not should_retry(e, failures):
+                    if not should_retry(e, failures, max_retries):
                         raise
-                    if failures > SUPPRESS_LOGS:
+                    if failures > suppress_logs:
                         log_warning("%s [%s]", str(e), failures)
                     if DEBUG_MODE:
                         log_exception(e)
 
                 # Attempt failed, sleep time.
                 failures += 1
-                sleep_time = randrange(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
+                sleep_time = randrange(min_sleep_time, max_sleep_time)
                 if DEBUG_MODE:
                     log_info("sleeping %s seconds.", round(failures * sleep_time, 2))
                 await aiosleep(failures * sleep_time)
@@ -109,23 +163,23 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
     else:
 
         @wraps(func)
-        def auto_retry_wrap(*args: P.args, **kwargs: P.kwargs) -> T:
+        def auto_retry_wrap(*args: __P.args, **kwargs: __P.kwargs) -> __T:
             failures = 0
             while True:
                 # Attempt to execute `func` and return response
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
-                    if not should_retry(e, failures):
+                    if not should_retry(e, failures, max_retries):
                         raise
-                    if failures > SUPPRESS_LOGS:
+                    if failures > suppress_logs:
                         log_warning("%s [%s]", str(e), failures)
                     if DEBUG_MODE:
                         log_exception(e)
 
                 # Attempt failed, sleep time.
                 failures += 1
-                sleep_time = randrange(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
+                sleep_time = randrange(min_sleep_time, max_sleep_time)
                 if DEBUG_MODE:
                     log_info("sleeping %s seconds.", round(failures * sleep_time, 2))
                 timesleep(failures * sleep_time)
@@ -133,8 +187,8 @@ def auto_retry(func: Callable[P, T]) -> Callable[P, T]:
         return auto_retry_wrap
 
 
-def should_retry(e: Exception, failures: int) -> bool:
-    if ETH_RETRY_DISABLED or failures > MAX_RETRIES:
+def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
+    if ETH_RETRY_DISABLED or failures > max_retries:
         return False
 
     retry_on_errs = (
@@ -159,6 +213,8 @@ def should_retry(e: Exception, failures: int) -> bool:
         "cannot assign requested address",
         # alchemy.io rate limiting
         "your app has exceeded its compute units per second capacity. if you have retries enabled, you can safely ignore this message. if not, check out https://docs.alchemy.com/reference/throughput",
+        # quicknode.com rate limiting
+        "request limit reached - reduce calls per second or upgrade your account at quicknode.com",
     )
     if any(filter(str(e).lower().__contains__, retry_on_errs)):  # type: ignore [arg-type]
         return True
@@ -187,7 +243,7 @@ def should_retry(e: Exception, failures: int) -> bool:
     return False
 
 
-_aio_files = "asyncio/events.py", "asyncio/base_events.py"
+_aio_files: Final = "asyncio/events.py", "asyncio/base_events.py"
 
 
 def _get_caller_details_from_stack() -> Optional[str]:
@@ -197,3 +253,6 @@ def _get_caller_details_from_stack() -> Optional[str]:
             context = frame.code_context
             return details if context is None else f"{details} {[context[0].strip()]}"
     return None
+
+
+__all__ = ["auto_retry"]

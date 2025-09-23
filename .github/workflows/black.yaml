@@ -15,14 +15,14 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
       with:
         ref: ${{ github.head_ref }}  # Check out the PR branch
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
-        python-version: '3.12'
+        python-version: '3.13'
 
     - name: Install Black
       run: pip install black
