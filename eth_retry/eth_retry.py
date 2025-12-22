@@ -10,7 +10,8 @@ from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
-from typing import Any, Callable, Coroutine, Final, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Final, Optional, TypeVar, Union, overload
+from collections.abc import Coroutine
 
 import requests
 
