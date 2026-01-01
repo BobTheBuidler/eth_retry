@@ -14,10 +14,7 @@ python = ">=3.10,<4"
 typing_extensions = ">=4.0.1"
 
 [tool.poetry.group.dev.dependencies]
-eth-brownie = [
-    {version = ">=1.16,<1.20", python = ">=3.8,<3.10"},
-    {version = ">=1.20.3", python = ">=3.10,<4"}
-]
+eth-brownie = ">=1.20.3"
 joblib = "*"
 pytest = "*"
 
