@@ -10,7 +10,8 @@ from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
-from typing import Any, Callable, Final, Optional, TypeVar, Union, overload
+from typing import Any, Final, Optional, TypeVar, Union, overload
+from collections.abc import Callable
 from collections.abc import Coroutine
 
 import requests
@@ -25,10 +26,7 @@ from eth_retry.conditional_imports import ReadTimeout  # type: ignore
 logger = getLogger("eth_retry")
 
 # Types
-if sys.version_info >= (3, 10):
-    from typing import ParamSpec
-else:
-    from typing_extensions import ParamSpec
+from typing import ParamSpec
 
 __T = TypeVar("__T")
 __P = ParamSpec("__P")
@@ -80,13 +78,13 @@ def auto_retry(
     suppress_logs: int = SUPPRESS_LOGS,
 ) -> Callable[__P, __T]: ...
 def auto_retry(
-    func: Optional[Callable[__P, __T]] = None,
+    func: Callable[__P, __T] | None = None,
     *,
     max_retries: int = MAX_RETRIES,
     min_sleep_time: int = MIN_SLEEP_TIME,
     max_sleep_time: int = MAX_SLEEP_TIME,
     suppress_logs: int = SUPPRESS_LOGS,
-) -> Union[Callable[__P, __T], Decorator]:  # type: ignore [type-arg]
+) -> Callable[__P, __T] | Decorator:  # type: ignore [type-arg]
     """
     Decorator that will retry the function on:
     - :class:`ConnectionError`
@@ -247,7 +245,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
 _aio_files: Final = "asyncio/events.py", "asyncio/base_events.py"
 
 
-def _get_caller_details_from_stack() -> Optional[str]:
+def _get_caller_details_from_stack() -> str | None:
     for frame in stack()[2:]:
         if all(filename not in frame.filename for filename in _aio_files):
             details = f"{frame.filename} line {frame.lineno}"
