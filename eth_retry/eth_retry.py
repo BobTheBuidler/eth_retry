@@ -3,6 +3,7 @@ from asyncio import (
     iscoroutinefunction,
     sleep as aiosleep,
 )
+from collections.abc import Callable, Coroutine
 from functools import partial, wraps
 from inspect import isasyncgenfunction, stack
 from json import JSONDecodeError
@@ -10,8 +11,6 @@ from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
 from typing import Any, Final, ParamSpec, TypeVar, overload
-from collections.abc import Callable
-from collections.abc import Coroutine
 
 import requests
 
