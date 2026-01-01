@@ -1,4 +1,3 @@
-import sys
 from asyncio import (
     TimeoutError as AsyncioTimeoutError,
     iscoroutinefunction,
@@ -10,7 +9,7 @@ from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
-from typing import Any, Final, Optional, TypeVar, Union, overload
+from typing import Any, Final, TypeVar, overload
 from collections.abc import Callable
 from collections.abc import Coroutine
 
