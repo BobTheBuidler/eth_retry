@@ -9,7 +9,7 @@ from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
-from typing import Any, Final, TypeVar, overload
+from typing import Any, Final, ParamSpec, TypeVar, overload
 from collections.abc import Callable
 from collections.abc import Coroutine
 
@@ -25,8 +25,6 @@ from eth_retry.conditional_imports import ReadTimeout  # type: ignore
 logger = getLogger("eth_retry")
 
 # Types
-from typing import ParamSpec
-
 __T = TypeVar("__T")
 __P = ParamSpec("__P")
 
