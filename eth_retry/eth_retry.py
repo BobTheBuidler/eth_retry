@@ -1,8 +1,7 @@
-from asyncio import (
-    TimeoutError as AsyncioTimeoutError,
-    iscoroutinefunction,
-    sleep as aiosleep,
-)
+import sys
+from asyncio import TimeoutError as AsyncioTimeoutError
+from asyncio import iscoroutinefunction
+from asyncio import sleep as aiosleep
 from collections.abc import Callable, Coroutine
 from functools import partial, wraps
 from inspect import isasyncgenfunction, stack
@@ -11,6 +10,7 @@ from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
 from typing import Any, Final, ParamSpec, TypeVar, overload
+from typing import Any, Callable, Final, Optional, TypeVar, Union, overload
 
 import requests
 
