@@ -52,6 +52,9 @@ jobs:
       
       - name: Upgrade Build Deps
         run: poetry run pip install -U setuptools wheel
+      
+      - name: Uninstall pytest-ethereum
+        run: poetry run pip uninstall -y pytest-ethereum
 
       - name: Install eth-retry
         run: poetry install --no-interaction
