@@ -52,12 +52,12 @@ jobs:
       
       - name: Upgrade Build Deps
         run: poetry run pip install -U setuptools wheel
-      
-      - name: Uninstall pytest-ethereum
-        run: poetry run pip uninstall -y pytest-ethereum
 
       - name: Install eth-retry
         run: poetry install --no-interaction
+      
+      - name: Uninstall pytest-ethereum
+        run: poetry run pip uninstall -y pytest-ethereum
       
       - name: Setup brownie networks
         run: poetry run brownie networks modify mainnet host=${{ secrets.WEB3_PROVIDER }}
