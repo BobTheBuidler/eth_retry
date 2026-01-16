@@ -56,9 +56,6 @@ jobs:
       - name: Install eth-retry
         run: poetry install --no-interaction
       
-      - name: Uninstall pytest-ethereum
-        run: poetry run pip uninstall -y pytest-ethereum
-      
       - name: Setup brownie networks
         run: poetry run brownie networks modify mainnet host=${{ secrets.WEB3_PROVIDER }}
         continue-on-error: true
