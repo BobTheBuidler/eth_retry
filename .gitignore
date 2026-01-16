@@ -7,3 +7,4 @@ eth_retry.egg-info
 __pycache__
 env
 .mypy_cache
+.worktrees
