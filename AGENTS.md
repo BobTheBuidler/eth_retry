@@ -11,5 +11,6 @@ All agents must follow these rules:
 5) Run relevant Python tests for changes (pytest/unittest or the repo's configured runner).
 6) Follow formatting/linting configured in pyproject.toml, setup.cfg, tox.ini, or ruff.toml.
 7) Update dependency lockfiles when adding or removing Python dependencies.
+8) The mypy configuration should go in pyproject.toml.
 
 Reference: https://www.conventionalcommits.org/en/v1.0.0/
