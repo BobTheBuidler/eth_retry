@@ -1,5 +1,8 @@
 
 # eth_retry
+
+[![CodSpeed](https://img.shields.io/badge/CodSpeed-Performance_Monitoring-blue?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTggMTVDMTEuODY2IDE1IDE1IDExLjg2NiAxNSA4QzE1IDQuMTM0IDExLjg2NiAxIDggMUM0LjEzNCAxIDEgNC4xMzQgMSA4QzEgMTEuODY2IDQuMTM0IDE1IDggMTVaIiBzdHJva2U9IiMxRjIzMjgiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTggNVY4TDEwLjUgMTAuNSIgc3Ryb2tlPSIjMUYyMzI4IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=)](https://codspeed.io/BobTheBuidler/eth_retry?utm_source=badge)
+
 > Stop transient errors from wasting your time!
 
 `eth_retry` is a Python library that provides one decorator, `eth_retry.auto_retry`.
