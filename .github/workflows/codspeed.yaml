@@ -40,6 +40,9 @@ jobs:
       - name: Upgrade Build Deps
         run: poetry run pip install -U setuptools wheel
 
+      - name: Clear cached dependencies
+        run: poetry env remove --all || true
+
       - name: Install eth-retry with benchmarking dependencies
         run: poetry install --no-interaction
 
