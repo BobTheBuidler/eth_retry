@@ -24,3 +24,13 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 100
+
+[tool.mypy]
+files = ["."]
+ignore_missing_imports = true
+install_types = true
+non_interactive = true
+pretty = true
+show_error_codes = true
+show_error_context = true
+strict = true
