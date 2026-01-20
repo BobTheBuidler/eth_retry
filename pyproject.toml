@@ -14,9 +14,9 @@ python = ">=3.10,<4"
 typing_extensions = ">=4.0.1"
 
 [tool.poetry.group.dev.dependencies]
-eth-brownie = "==1.21.0"
+eth-brownie = ">=1.20.3"
 joblib = "*"
-pytest = "==6.2.5"
+pytest = "*"
 
 [build-system]
 requires = ["poetry-core"]
@@ -27,10 +27,10 @@ line-length = 100
 
 [tool.mypy]
 files = ["."]
-ignore_missing_imports = true
-install_types = true
-non_interactive = true
+strict = true
 pretty = true
 show_error_codes = true
 show_error_context = true
-strict = true
+install_types = true
+non_interactive = true
+ignore_missing_imports = true
