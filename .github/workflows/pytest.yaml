@@ -63,5 +63,5 @@ jobs:
       - name: Run test suite
         env:
           PYTEST_NETWORK: mainnet
-        run: poetry run pytest -s -v
+        run: poetry run pytest
       
