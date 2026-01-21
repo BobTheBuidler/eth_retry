@@ -16,7 +16,7 @@ typing_extensions = ">=4.0.1"
 [tool.poetry.group.dev.dependencies]
 eth-brownie = "==1.21.0"
 joblib = "*"
-pytest = "==6.2.5"
+pytest = "==9.0.2"
 
 [build-system]
 requires = ["poetry-core"]
