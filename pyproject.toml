@@ -17,6 +17,7 @@ typing_extensions = ">=4.0.1"
 eth-brownie = "==1.21.0"
 joblib = "*"
 pytest = "==6.2.5"
+pytest-codspeed = "2.2.1"
 
 [build-system]
 requires = ["poetry-core"]
