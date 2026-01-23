@@ -109,7 +109,7 @@ def auto_retry(
     if not isinstance(max_retries, int):
         raise TypeError(f"'max_retries' must be an integer, not {max_retries}")
     if not isinstance(min_sleep_time, int):
-        raise TypeError(f"'min_sleep_time' must be an integer, not {min_sleep_time}")
+        raise TypeError(f"'min_sleep_time' must be an integer, not {max_sleep_time}")
     if not isinstance(max_sleep_time, int):
         raise TypeError(f"'max_sleep_time' must be an integer, not {max_sleep_time}")
     if not isinstance(suppress_logs, int):
@@ -207,7 +207,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         # Occurs occasionally on AVAX when node is slow to sync. Just retry.
         "after last accepted block",
         # The standard Moralis rate limiting message. Just retry.
-        "too many requests"
+        "too many requests",
         # You get this ssl error in docker sometimes
         "cannot assign requested address",
         # alchemy.io rate limiting
