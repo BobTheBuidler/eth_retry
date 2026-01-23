@@ -141,7 +141,8 @@ def auto_retry(
                     )
                     if DEBUG_MODE:
                         log_exception(e)
-                    continue
+                    if not should_retry(e, failures, max_retries):
+                        raise
                 except Exception as e:
                     if not should_retry(e, failures, max_retries):
                         raise
