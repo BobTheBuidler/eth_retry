@@ -208,7 +208,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         # Occurs occasionally on AVAX when node is slow to sync. Just retry.
         "after last accepted block",
         # The standard Moralis rate limiting message. Just retry.
-        "too many requests"
+        "too many requests",
         # You get this ssl error in docker sometimes
         "cannot assign requested address",
         # alchemy.io rate limiting
