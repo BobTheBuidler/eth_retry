@@ -226,6 +226,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         MaxRetryError,
         JSONDecodeError,
         ClientError,
+        AsyncioTimeoutError,
     )
 
     stre = str(e)
