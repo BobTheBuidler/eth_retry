@@ -109,7 +109,7 @@ def auto_retry(
     if not isinstance(max_retries, int):
         raise TypeError(f"'max_retries' must be an integer, not {max_retries}")
     if not isinstance(min_sleep_time, int):
-        raise TypeError(f"'min_sleep_time' must be an integer, not {max_sleep_time}")
+        raise TypeError(f"'min_sleep_time' must be an integer, not {min_sleep_time}")
     if not isinstance(max_sleep_time, int):
         raise TypeError(f"'max_sleep_time' must be an integer, not {max_sleep_time}")
     if not isinstance(suppress_logs, int):
