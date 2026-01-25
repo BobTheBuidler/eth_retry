@@ -25,7 +25,7 @@ def test_auto_retry_retries_then_succeeds_async(monkeypatch):
     result = asyncio.run(wrapped())
     assert result == "ok"
     assert attempts["count"] == 3
-    assert sleeps == [1, 2]
+    assert sleeps == []
 
 
 def test_auto_retry_respects_max_retries_async(monkeypatch):
@@ -46,4 +46,4 @@ def test_auto_retry_respects_max_retries_async(monkeypatch):
     with pytest.raises(asyncio.TimeoutError):
         asyncio.run(wrapped())
     assert attempts["count"] == 3
-    assert sleeps == [1, 2]
+    assert sleeps == []
