@@ -134,6 +134,8 @@ def auto_retry(
                 try:
                     return await func(*args, **kwargs)  # type: ignore
                 except AsyncioTimeoutError as e:
+                    if not should_retry(e, failures, max_retries):
+                        raise
                     log_warning(
                         "asyncio timeout [%s] %s",
                         failures,
@@ -141,8 +143,8 @@ def auto_retry(
                     )
                     if DEBUG_MODE:
                         log_exception(e)
-                    if not should_retry(e, failures, max_retries):
-                        raise
+                    failures += 1
+                    continue
                 except Exception as e:
                     if not should_retry(e, failures, max_retries):
                         raise
@@ -224,6 +226,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         requests.exceptions.ConnectionError,
         HTTPError,
         ReadTimeout,
+        AsyncioTimeoutError,
         MaxRetryError,
         JSONDecodeError,
         ClientError,
