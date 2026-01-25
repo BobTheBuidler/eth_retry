@@ -134,6 +134,8 @@ def auto_retry(
                 try:
                     return await func(*args, **kwargs)  # type: ignore
                 except AsyncioTimeoutError as e:
+                    if not should_retry(e, failures, max_retries):
+                        raise
                     log_warning(
                         "asyncio timeout [%s] %s",
                         failures,
@@ -141,6 +143,7 @@ def auto_retry(
                     )
                     if DEBUG_MODE:
                         log_exception(e)
+                    failures += 1
                     continue
                 except Exception as e:
                     if not should_retry(e, failures, max_retries):
@@ -207,7 +210,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         # Occurs occasionally on AVAX when node is slow to sync. Just retry.
         "after last accepted block",
         # The standard Moralis rate limiting message. Just retry.
-        "too many requests"
+        "too many requests",
         # You get this ssl error in docker sometimes
         "cannot assign requested address",
         # alchemy.io rate limiting
@@ -223,6 +226,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         requests.exceptions.ConnectionError,
         HTTPError,
         ReadTimeout,
+        AsyncioTimeoutError,
         MaxRetryError,
         JSONDecodeError,
         ClientError,
