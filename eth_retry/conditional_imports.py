@@ -20,8 +20,9 @@ except ModuleNotFoundError:
 # aiohttp
 try:
     from aiohttp import ClientError
+    from aiohttp import ClientResponseError
 except ModuleNotFoundError:
-    ClientError = DummyException
+    ClientError, ClientResponseError = DummyException, DummyException
 
 # urllib
 try:

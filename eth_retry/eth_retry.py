@@ -14,6 +14,7 @@ import requests
 
 from eth_retry import ENVIRONMENT_VARIABLES as ENVS
 from eth_retry.conditional_imports import ClientError  # type: ignore
+from eth_retry.conditional_imports import ClientResponseError  # type: ignore
 from eth_retry.conditional_imports import HTTPError  # type: ignore
 from eth_retry.conditional_imports import MaxRetryError  # type: ignore
 from eth_retry.conditional_imports import OperationalError  # type: ignore
@@ -187,6 +188,8 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
     if ETH_RETRY_DISABLED or failures > max_retries:
         return False
 
+    stre = str(e)
+
     retry_on_errs = (
         # Occurs on any chain when making computationally intensive calls. Just retry.
         # Sometimes works, sometimes doesn't. Worth a shot.
@@ -212,8 +215,13 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         # quicknode.com rate limiting
         "request limit reached - reduce calls per second or upgrade your account at quicknode.com",
     )
-    if any(filter(str(e).lower().__contains__, retry_on_errs)):  # type: ignore [arg-type]
+    if any(filter(stre.lower().__contains__, retry_on_errs)):  # type: ignore [arg-type]
         return True
+
+    if isinstance(e, HTTPError) and e.response is not None and e.response.status_code == 403:
+        return False
+    if isinstance(e, ClientResponseError) and e.status == 403:
+        return False
 
     general_exceptions = (
         ConnectionError,
@@ -226,7 +234,6 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         ClientError,
     )
 
-    stre = str(e)
     if (
         any(isinstance(e, E) for E in general_exceptions)
         and "Too Large" not in stre
