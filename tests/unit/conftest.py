@@ -1,8 +1,9 @@
 import importlib
 
+import pytest
+
 import eth_retry.ENVIRONMENT_VARIABLES as envs
 import eth_retry.eth_retry as er
-import pytest
 
 
 def _reload_eth_retry():

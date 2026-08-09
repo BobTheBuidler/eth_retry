@@ -39,7 +39,9 @@ class _AsyncMockResponse:
         return json.dumps(self._payload).encode()
 
 
-def _mock_requests_post(self: requests.Session, url: str, *args: Any, **kwargs: Any) -> _MockResponse:
+def _mock_requests_post(
+    self: requests.Session, url: str, *args: Any, **kwargs: Any
+) -> _MockResponse:
     data = kwargs.get("data") or (args[0] if args else None)
     request_body = json.loads(data) if isinstance(data, (bytes, str)) else data
     return _MockResponse(_build_rpc_response(request_body))

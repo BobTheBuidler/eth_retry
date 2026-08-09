@@ -58,7 +58,9 @@ def test_should_retry_operational_error_locked():
 
 
 def test_should_not_retry_other_operational_errors():
-    assert er.should_retry(er.OperationalError("disk i/o error"), failures=0, max_retries=3) is False
+    assert (
+        er.should_retry(er.OperationalError("disk i/o error"), failures=0, max_retries=3) is False
+    )
 
 
 def test_should_retry_respects_max_retries():

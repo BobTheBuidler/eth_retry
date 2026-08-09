@@ -1,5 +1,6 @@
 
 # eth_retry
+>
 > Stop transient errors from wasting your time!
 
 `eth_retry` is a Python library that provides one decorator, `eth_retry.auto_retry`.
@@ -11,6 +12,7 @@ Supports both synchronous and asynchronous functions.
 ------------
 
 Covers many common transient errors in the EVM ecosystem, including:
+
 - RPC timeouts
 - Block explorer API rate-limiting
 - Generic exceptions:
@@ -21,12 +23,14 @@ Covers many common transient errors in the EVM ecosystem, including:
 - eth-brownie specific errors:
   - sqlite3.OperationalError: database is locked
 
-## Installation:
+## Installation
+
 `pip install eth_retry`
 or
 `pip install git+https://github.com/BobTheBuidler/eth_retry.git`
 
-## Usage:
+## Usage
+
 ```
 import eth_retry
 
@@ -47,7 +51,8 @@ On the `n`th retry, the sleep period is multiplied by `n` so that the target end
 
 After `os.environ['MAX_RETRIES']` failures, eth_retry will raise the exception.
 
-## Environment:
+## Environment
+
 ```
 # Minimum sleep time in seconds. Integer. Defaults to 10.
 MIN_SLEEP_TIME=10
