@@ -1,11 +1,12 @@
 # type: ignore
 
 import asyncio
-from eth_retry.eth_retry import auto_retry
 
 from brownie import web3
 from web3 import AsyncHTTPProvider, Web3
 from web3.eth import AsyncEth
+
+from eth_retry.eth_retry import auto_retry
 
 async_w3 = Web3(AsyncHTTPProvider(web3.provider.endpoint_uri))
 async_w3.eth = AsyncEth(async_w3)

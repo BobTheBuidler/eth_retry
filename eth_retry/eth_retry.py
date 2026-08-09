@@ -1,16 +1,15 @@
 import sys
-from asyncio import (
-    TimeoutError as AsyncioTimeoutError,
-    iscoroutinefunction,
-    sleep as aiosleep,
-)
+from asyncio import TimeoutError as AsyncioTimeoutError
+from asyncio import iscoroutinefunction
+from asyncio import sleep as aiosleep
+from collections.abc import Coroutine
 from functools import partial, wraps
 from inspect import isasyncgenfunction, stack
 from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
 from time import sleep as timesleep
-from typing import Any, Callable, Coroutine, Final, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Final, Optional, TypeVar, Union, overload
 
 import requests
 
@@ -135,6 +134,8 @@ def auto_retry(
                 try:
                     return await func(*args, **kwargs)  # type: ignore
                 except AsyncioTimeoutError as e:
+                    if not should_retry(e, failures, max_retries):
+                        raise
                     log_warning(
                         "asyncio timeout [%s] %s",
                         failures,
@@ -142,6 +143,7 @@ def auto_retry(
                     )
                     if DEBUG_MODE:
                         log_exception(e)
+                    failures += 1
                     continue
                 except Exception as e:
                     if not should_retry(e, failures, max_retries):
@@ -208,7 +210,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         # Occurs occasionally on AVAX when node is slow to sync. Just retry.
         "after last accepted block",
         # The standard Moralis rate limiting message. Just retry.
-        "too many requests"
+        "too many requests",
         # You get this ssl error in docker sometimes
         "cannot assign requested address",
         # alchemy.io rate limiting
@@ -224,6 +226,7 @@ def should_retry(e: Exception, failures: int, max_retries: int) -> bool:
         requests.exceptions.ConnectionError,
         HTTPError,
         ReadTimeout,
+        AsyncioTimeoutError,
         MaxRetryError,
         JSONDecodeError,
         ClientError,
