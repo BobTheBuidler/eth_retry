@@ -1,8 +1,24 @@
 from json import JSONDecodeError
 
 import pytest
+from aiohttp import RequestInfo
+from multidict import CIMultiDict, CIMultiDictProxy
+from yarl import URL
 
 import eth_retry.eth_retry as er
+
+
+def _http_error(status_code, message):
+    response = er.requests.Response()
+    response.status_code = status_code
+    return er.HTTPError(message, response=response)
+
+
+def _client_response_error(status_code, message):
+    headers = CIMultiDictProxy(CIMultiDict())
+    url = URL("https://example.com")
+    request_info = RequestInfo(url, "POST", headers, url)
+    return er.ClientResponseError(request_info, (), status=status_code, message=message)
 
 
 @pytest.mark.parametrize(
@@ -48,6 +64,28 @@ def test_should_retry_general_exceptions(exc):
 def test_should_retry_skips_too_large_and_404():
     assert er.should_retry(ConnectionError("Too Large"), failures=0, max_retries=3) is False
     assert er.should_retry(ConnectionError("404"), failures=0, max_retries=3) is False
+
+
+def test_should_retry_skips_403():
+    assert er.should_retry(_http_error(403, "Forbidden"), failures=0, max_retries=3) is False
+
+
+def test_should_retry_string_matches_before_skipping_403():
+    assert er.should_retry(_http_error(403, "Too Many Requests"), failures=0, max_retries=3) is True
+
+
+def test_should_retry_skips_aiohttp_403():
+    assert (
+        er.should_retry(_client_response_error(403, "Forbidden"), failures=0, max_retries=3)
+        is False
+    )
+
+
+def test_should_retry_string_matches_before_skipping_aiohttp_403():
+    assert (
+        er.should_retry(_client_response_error(403, "Too Many Requests"), failures=0, max_retries=3)
+        is True
+    )
 
 
 def test_should_retry_operational_error_locked():
