@@ -1,8 +1,9 @@
+import sys
 from asyncio import TimeoutError as AsyncioTimeoutError
 from asyncio import sleep as aiosleep
 from collections.abc import Callable, Coroutine
 from functools import partial, wraps
-from inspect import isasyncgenfunction, iscoroutinefunction, stack
+from inspect import isasyncgenfunction, stack
 from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
@@ -10,6 +11,11 @@ from time import sleep as timesleep
 from typing import Any, Final, ParamSpec, TypeVar, overload
 
 import requests
+
+if sys.version_info >= (3, 14):
+    from inspect import iscoroutinefunction
+else:
+    from asyncio import iscoroutinefunction
 
 from eth_retry import ENVIRONMENT_VARIABLES as ENVS
 from eth_retry.conditional_imports import ClientError  # type: ignore
