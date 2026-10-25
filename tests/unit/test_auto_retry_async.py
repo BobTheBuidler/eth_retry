@@ -1,4 +1,5 @@
 import asyncio
+import warnings
 
 import pytest
 
@@ -47,3 +48,14 @@ def test_auto_retry_respects_max_retries_async(monkeypatch):
         asyncio.run(wrapped())
     assert attempts["count"] == 3
     assert sleeps == []
+
+
+def test_auto_retry_decorating_async_emits_no_deprecation_warning():
+    async def ok():
+        return "ok"
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        wrapped = er.auto_retry(ok)
+
+    assert asyncio.run(wrapped()) == "ok"
