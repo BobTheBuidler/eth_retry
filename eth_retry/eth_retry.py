@@ -1,9 +1,8 @@
 from asyncio import TimeoutError as AsyncioTimeoutError
-from asyncio import iscoroutinefunction
 from asyncio import sleep as aiosleep
 from collections.abc import Callable, Coroutine
 from functools import partial, wraps
-from inspect import isasyncgenfunction, stack
+from inspect import isasyncgenfunction, iscoroutinefunction, stack
 from json import JSONDecodeError
 from logging import getLogger
 from random import randrange
